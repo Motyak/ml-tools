@@ -1,0 +1,19 @@
+[submodule "monlang"]
+	path = monlang
+	url = https://github.com/Motyak/monlang.git
+	branch = master
+
+[submodule "monlang-parser"]
+	path = monlang-parser
+	url = https://github.com/Motyak/monlang-parser.git
+	branch = master
+
+[submodule "monlang-interpreter"]
+	path = monlang-interpreter
+	url = https://github.com/Motyak/monlang-interpreter.git
+	branch = master
+
+[submodule "monlang-server"]
+	path = monlang-server
+	url = https://github.com/Motyak/monlang-server.git
+	branch = master
