@@ -10,6 +10,9 @@ git clone https://github.com/Motyak/ml-tools.git ~/.local/share/ml-tools && cd $
 # Update & Build (but don't install)
 ./build.sh
 
+# Uninstall (remove symlinks)
+./uninstall.sh
+
 ---
 
 # Once installed, no need to re-execute ./install.sh to update,
