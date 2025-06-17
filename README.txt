@@ -1,15 +1,16 @@
-#!/bin/bash
-set -o errexit
-shopt -s expand_aliases
 
-alias make='make -j16'
+# TLDR; Oneline fresh installation (including repo cloning)
+git clone https://github.com/Motyak/ml-tools.git ~/.local/share/ml-tools && cd $_ && ./install.sh
 
-git clone --recurse-submodules https://github.com/Motyak/ml-tools.git
+---
 
-cd ml-tools
+# Update & Build & Install
+./install.sh
 
-make -C monlang dist
-make -C monlang-parser bin/main.elf
-make -C monlang-interpreter bin/main.elf
+# Update & Build (but don't install)
+./build.sh
 
+---
 
+# Once installed, no need to re-execute ./install.sh to update,
+# only ./build.sh.
