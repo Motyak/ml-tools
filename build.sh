@@ -13,6 +13,6 @@ git submodule update --remote
     [ $exit_code -eq 1 ] && make -C monlang dist # should (re)build
     [ $exit_code -eq 2 ] && exit 2 # error in makefile
     set -o errexit
-    make -C monlang-parser bin/main.elf
-    make -C monlang-interpreter bin/main.elf
+    make -C monlang-parser bin/main.elf CXX=g++
+    make -C monlang-interpreter bin/main.elf CXX=g++
 )
