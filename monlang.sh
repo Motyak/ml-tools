@@ -3,6 +3,10 @@ set -o errexit
 
 trap 'rm -rf "$TMPDIR"; jobs -p | xargs -r kill' EXIT
 
+function replace_shebang {
+    awk 'NR == 1 && /^#!/ {printf "\x27"; for (i = 1; i <= length - 1; ++i) printf "1"; printf "\n"; next} {print}'
+}
+
 # REPL mode #
 if [ "$1" == "" ]; then
     TMPDIR="$(mktemp -d)"
@@ -13,23 +17,19 @@ if [ "$1" == "" ]; then
     monlang-parser/bin/main.elf\ -o < "$PIPE1" &
     monlang-interpreter/bin/main.elf < "$PIPE2" &
     while true; do
-        >/dev/null tee "$TMPFILE"
+        tee "$TMPFILE" >/dev/null
         cat "$TMPFILE" > "$PIPE2"
         cat "$TMPFILE" > "$PIPE1"
     done
 
-# stdin mode #
-elif [ "$1" == "-" ]; then
+# stdin/filein mode #
+else
+    STDIN_SRCNAME="<stdin>"; [ "$1" != "-" ] && STDIN_SRCNAME="$1"
+
     TMPDIR="$(mktemp -d)"
     TMPFILE="$(mktemp -p "$TMPDIR")"
-    >/dev/null tee "$TMPFILE"
-    monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
-    monlang-interpreter/bin/main.elf - < "$TMPFILE"
+    replace_shebang < "$1" | tee "$TMPFILE" >/dev/null
+    STDIN_SRCNAME="$STDIN_SRCNAME" monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
+    STDIN_SRCNAME="$STDIN_SRCNAME" monlang-interpreter/bin/main.elf - < "$TMPFILE"
 
-# filein mode #
-else
-    monlang-parser/bin/main.elf\ -o "$1"
-    monlang-interpreter/bin/main.elf "$1"
 fi
-
-
