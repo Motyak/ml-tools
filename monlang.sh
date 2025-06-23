@@ -22,14 +22,20 @@ if [ "$1" == "" ]; then
         cat "$TMPFILE" > "$PIPE1"
     done
 
-# stdin/filein mode #
-else
-    STDIN_SRCNAME="<stdin>"; [ "$1" != "-" ] && STDIN_SRCNAME="$1"
+# stdin mode #
+elif [ "$1" == "-" ]; then
+    TMPDIR="$(mktemp -d)"
+    TMPFILE="$(mktemp -p "$TMPDIR")"
+    replace_shebang | tee "$TMPFILE" >/dev/null
+    monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
+    monlang-interpreter/bin/main.elf - < "$TMPFILE"
 
+# filein mode #
+else
     TMPDIR="$(mktemp -d)"
     TMPFILE="$(mktemp -p "$TMPDIR")"
     replace_shebang < "$1" | tee "$TMPFILE" >/dev/null
-    STDIN_SRCNAME="$STDIN_SRCNAME" monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
-    STDIN_SRCNAME="$STDIN_SRCNAME" monlang-interpreter/bin/main.elf - < "$TMPFILE"
+    STDIN_SRCNAME="$1" monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
+    STDIN_SRCNAME="$1" monlang-interpreter/bin/main.elf - < "$TMPFILE"
 
 fi
