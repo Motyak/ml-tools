@@ -1,41 +1,51 @@
 #!/bin/bash
+
+[ "${BASH_SOURCE[0]}" == "$0" ] || {
+    >&2 echo "script must be executed, not sourced"
+    return 1
+}
+
 set -o errexit
 
-trap 'rm -rf "$TMPDIR"; jobs -p | xargs -r kill' EXIT
+trap 'rm -rf "$tmpdir"; jobs -p | xargs -r kill' EXIT
 
 function replace_shebang {
     awk 'NR == 1 && /^#!/ {printf "\x27"; for (i = 1; i <= length - 1; ++i) printf "1"; printf "\n"; next} {print}'
 }
 
+[ "$1" != "" ] && FILEPATH="$(realpath "$1")"
+
+cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
 # REPL mode #
 if [ "$1" == "" ]; then
-    TMPDIR="$(mktemp -d)"
-    TMPFILE="$(mktemp -p "$TMPDIR")"
-    PIPE1="$(mktemp -u -p "$TMPDIR")"
-    PIPE2="$(mktemp -u -p "$TMPDIR")"
-    mkfifo "$PIPE1" "$PIPE2"
-    monlang-parser/bin/main.elf\ -o < "$PIPE1" &
-    monlang-interpreter/bin/main.elf < "$PIPE2" &
+    tmpdir="$(mktemp -d)"
+    tmpfile="$(mktemp -p "$tmpdir")"
+    pipe1="$(mktemp -u -p "$tmpdir")"
+    pipe2="$(mktemp -u -p "$tmpdir")"
+    mkfifo "$pipe1" "$pipe2"
+    monlang-parser/bin/main.elf\ -o < "$pipe1" &
+    monlang-interpreter/bin/main.elf < "$pipe2" &
     while true; do
-        tee "$TMPFILE" >/dev/null
-        cat "$TMPFILE" > "$PIPE2"
-        cat "$TMPFILE" > "$PIPE1"
+        tee "$tmpfile" >/dev/null
+        cat "$tmpfile" > "$pipe2"
+        cat "$tmpfile" > "$pipe1"
     done
 
 # stdin mode #
 elif [ "$1" == "-" ]; then
-    TMPDIR="$(mktemp -d)"
-    TMPFILE="$(mktemp -p "$TMPDIR")"
-    replace_shebang | tee "$TMPFILE" >/dev/null
-    monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
-    monlang-interpreter/bin/main.elf - < "$TMPFILE"
+    tmpdir="$(mktemp -d)"
+    tmpfile="$(mktemp -p "$tmpdir")"
+    replace_shebang | tee "$tmpfile" >/dev/null
+    monlang-parser/bin/main.elf\ -o - < "$tmpfile"
+    monlang-interpreter/bin/main.elf - < "$tmpfile"
 
 # filein mode #
 else
-    TMPDIR="$(mktemp -d)"
-    TMPFILE="$(mktemp -p "$TMPDIR")"
-    replace_shebang < "$1" | tee "$TMPFILE" >/dev/null
-    STDIN_SRCNAME="$1" monlang-parser/bin/main.elf\ -o - < "$TMPFILE"
-    STDIN_SRCNAME="$1" monlang-interpreter/bin/main.elf - < "$TMPFILE"
+    tmpdir="$(mktemp -d)"
+    tmpfile="$(mktemp -p "$tmpdir")"
+    replace_shebang < "$FILEPATH" | tee "$tmpfile" >/dev/null
+    STDIN_SRCNAME="$1" monlang-parser/bin/main.elf\ -o - < "$tmpfile"
+    STDIN_SRCNAME="$1" monlang-interpreter/bin/main.elf - < "$tmpfile"
 
 fi
