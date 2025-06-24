@@ -7,6 +7,7 @@ alias make='make -j16'
 git submodule sync
 git submodule update --init
 git submodule update --remote
+git submodule foreach git checkout master
 
 (
     make -C monlang -q main; exit_code=$?
