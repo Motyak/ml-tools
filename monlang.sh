@@ -24,8 +24,8 @@ if [ "$1" == "" ]; then
     pipe1="$(mktemp -u -p "$tmpdir")"
     pipe2="$(mktemp -u -p "$tmpdir")"
     mkfifo "$pipe1" "$pipe2"
-    monlang-parser/bin/main.elf\ -o < "$pipe1" &
-    { monlang-interpreter/bin/main.elf < "$pipe2" || kill -15 $$; } &
+    monlang-parser/bin/main.elf\ -o < "$pipe1" || kill -15 $$ &
+    monlang-interpreter/bin/main.elf < "$pipe2" || kill -15 $$ &
     while true; do
         tee "$tmpfile" >/dev/null
         cat "$tmpfile" > "$pipe2"
