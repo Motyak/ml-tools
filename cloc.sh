@@ -89,8 +89,12 @@ function doit {
     var="$(cloc --list-file=filelist.txt --by-file | perl -pe 's/^.*ml-tools/./g')"
     sum_row="$(tail -n2 <<< "$var" | head -n2)"
     table="$(tail -n+2 <<< "$var")"
-    tac <<< "$table"
-    echo "$sum_row"
+    tac <<< "$table" \
+        | perl -pe 's/ {124}/                                                                                            /g' \
+        | perl -pe 's/-{124}/--------------------------------------------------------------------------------------------/g'
+    echo "$sum_row" \
+        | perl -pe 's/ {125}/                                                                                             /g' \
+        | perl -pe 's/-{125}/---------------------------------------------------------------------------------------------/g'
 }
 
 trap 'rm -f filelist.txt' EXIT
