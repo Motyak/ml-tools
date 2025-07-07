@@ -38,7 +38,7 @@ elif [ "$1" == "-" ]; then
     tmpfile="$(mktemp -p "$tmpdir")"
     replace_shebang | tee "$tmpfile" >/dev/null
     monlang-parser/bin/main.elf\ -o - < "$tmpfile"
-    exec monlang-interpreter/bin/main.elf - < "$tmpfile"
+    monlang-interpreter/bin/main.elf - < "$tmpfile"
 
 # filein mode #
 else
@@ -46,6 +46,6 @@ else
     tmpfile="$(mktemp -p "$tmpdir")"
     replace_shebang < "$FILEPATH" | tee "$tmpfile" >/dev/null
     STDIN_SRCNAME="$1" monlang-parser/bin/main.elf\ -o - < "$tmpfile"
-    STDIN_SRCNAME="$1" exec monlang-interpreter/bin/main.elf - < "$tmpfile"
+    STDIN_SRCNAME="$1" monlang-interpreter/bin/main.elf - < "$tmpfile"
 
 fi
