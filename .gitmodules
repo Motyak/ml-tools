@@ -2,22 +2,18 @@
 	path = monlang
 	url = https://github.com/Motyak/monlang.git
 	branch = master
-	update = checkout
 
 [submodule "monlang-parser"]
 	path = monlang-parser
 	url = https://github.com/Motyak/monlang-parser.git
 	branch = master
-	update = checkout
 
 [submodule "monlang-interpreter"]
 	path = monlang-interpreter
 	url = https://github.com/Motyak/monlang-interpreter.git
 	branch = master
-	update = checkout
 
 [submodule "monlang-server"]
 	path = monlang-server
 	url = https://github.com/Motyak/monlang-server.git
 	branch = master
-	update = checkout
