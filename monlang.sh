@@ -16,19 +16,19 @@ function replace_shebang {
     awk 'NR == 1 && /^#!/ {printf "\x27"; for (i = 1; i <= length - 1; ++i) printf "1"; printf "\n"; next} {print}'
 }
 
-[ "$1" != "" ] && FILEPATH="$(realpath "$1")"
+[[ "$1" =~ ^(--)?$ ]] || FILEPATH="$(realpath "$1")"
 
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 # REPL mode #
-if [ "$1" == "" ]; then
+if [[ "$1" =~ ^(--)?$ ]]; then
     tmpdir="$(mktemp -d)"
     tmpfile="$(mktemp -p "$tmpdir")"
     pipe1="$(mktemp -u -p "$tmpdir")"
     pipe2="$(mktemp -u -p "$tmpdir")"
     mkfifo "$pipe1" "$pipe2"
     monlang-parser/bin/main.elf\ -o < "$pipe1" || kill -15 $$ &
-    monlang-interpreter/bin/main.elf\ -i < "$pipe2" || kill -15 $$ &
+    monlang-interpreter/bin/main.elf\ -i "$@" < "$pipe2" || kill -15 $$ &
     while true; do
         tee "$tmpfile" >/dev/null
         cat "$tmpfile" > "$pipe2"
@@ -41,7 +41,7 @@ elif [ "$1" == "-" ]; then
     tmpfile="$(mktemp -p "$tmpdir")"
     replace_shebang | tee "$tmpfile" >/dev/null
     monlang-parser/bin/main.elf\ -o - < "$tmpfile"
-    monlang-interpreter/bin/main.elf - < "$tmpfile"
+    monlang-interpreter/bin/main.elf - "${@:2}" < "$tmpfile"
 
 # filein mode #
 else
@@ -49,6 +49,6 @@ else
     tmpfile="$(mktemp -p "$tmpdir")"
     replace_shebang < "$FILEPATH" | tee "$tmpfile" >/dev/null
     STDIN_SRCNAME="$1" monlang-parser/bin/main.elf\ -o - < "$tmpfile"
-    STDIN_SRCNAME="$1" monlang-interpreter/bin/main.elf - < "$tmpfile"
+    STDIN_SRCNAME="$1" monlang-interpreter/bin/main.elf - "${@:2}" < "$tmpfile"
 
 fi
