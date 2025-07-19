@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# NOTE: supporting the REPL mode for parser and interpreter simultaneously
+#       has required a couple of hacks, but I think it is worth it.
+
 [ "${BASH_SOURCE[0]}" == "$0" ] || {
     >&2 echo "script must be executed, not sourced"
     return 1
@@ -25,7 +28,7 @@ if [ "$1" == "" ]; then
     pipe2="$(mktemp -u -p "$tmpdir")"
     mkfifo "$pipe1" "$pipe2"
     monlang-parser/bin/main.elf\ -o < "$pipe1" || kill -15 $$ &
-    monlang-interpreter/bin/main.elf < "$pipe2" || kill -15 $$ &
+    monlang-interpreter/bin/main.elf\ -i < "$pipe2" || kill -15 $$ &
     while true; do
         tee "$tmpfile" >/dev/null
         cat "$tmpfile" > "$pipe2"
