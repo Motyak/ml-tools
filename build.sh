@@ -13,7 +13,7 @@ alias make='make -j16'
 git submodule sync
 emptydir monlang && git submodule update --init
 git submodule foreach git checkout master
-git submodule foreach git reset --hard origin/master
+git submodule foreach git pull origin master --ff-only
 
 (
     make -C monlang -q main; exit_code=$?
