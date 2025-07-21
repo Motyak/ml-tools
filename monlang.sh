@@ -10,7 +10,7 @@
 
 set -o errexit
 
-trap 'rm -rf "$tmpdir"; jobs -p | xargs -r kill 2>/dev/null' EXIT
+trap 'rm -rf "$tmpdir"; jobs -p | xargs -r kill -9' EXIT
 
 function replace_shebang {
     awk 'NR == 1 && /^#!/ {printf "\x27"; for (i = 1; i <= length - 1; ++i) printf "1"; printf "\n"; next} {print}'
@@ -27,10 +27,10 @@ if [[ "$1" =~ ^(--)?$ ]]; then
     pipe1="$(mktemp -u -p "$tmpdir")"
     pipe2="$(mktemp -u -p "$tmpdir")"
     mkfifo "$pipe1" "$pipe2"
-    monlang-parser/bin/main.elf\ -o < "$pipe1" || kill -15 $$ &
-    monlang-interpreter/bin/main.elf\ -i "$@" < "$pipe2" || kill -15 $$ &
+    monlang-parser/bin/main.elf\ -o < "$pipe1" & parser_pid=$!
+    monlang-interpreter/bin/main.elf\ -i "$@" < "$pipe2" || { kill -9 $parser_pid; kill -15 $$; } &
     while true; do
-        tee "$tmpfile" >/dev/null
+        { tee "$tmpfile"; } &>/dev/null
         cat "$tmpfile" > "$pipe2"
         cat "$tmpfile" > "$pipe1"
     done
