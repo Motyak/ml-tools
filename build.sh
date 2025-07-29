@@ -4,8 +4,8 @@ shopt -s expand_aliases
 
 function emptydir (
     local dir="$1"
-    shopt -s nullglob
-    [ -d "$dir" ] && [ -z "$(echo ${dir}/*)" ]
+    shopt -s failglob
+    { : ${dir}/*; } 2>/dev/null
 )
 
 alias make='make -j16'
