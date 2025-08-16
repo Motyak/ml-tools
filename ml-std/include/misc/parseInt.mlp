@@ -1,0 +1,25 @@
+#pragma once
+
+var parseInt (str):{
+    var ** (a, b):{
+        var res 1
+        foreach(1 .. b, (_):{
+            res *= a
+        })
+        res
+    }
+    var ascii (c):{
+        Int(Char(c))
+    }
+    var to_digit (c):{
+        ascii(c) - ascii('0)
+    }
+    var res 0
+    foreach(0 .. len(str) - 1, (i):{
+        var nth len(str) - i
+        var curr str[#nth]
+        res += to_digit(curr) * 10 ** i
+        i += 1
+    })
+    res
+}

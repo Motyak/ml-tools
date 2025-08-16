@@ -1,0 +1,25 @@
+#pragma once
+
+#include <std/fn/tern.mlp>
+
+var ByteStr {
+    var ByteStr-1+ _
+
+    var ByteStr (xs...):{
+        !tern($#varargs, "", {
+            ByteStr-1+(xs...)
+        })
+    }
+
+    ByteStr-1+ := (x, xs...):{
+        Char(x) + ByteStr(xs...)
+    }
+
+    ByteStr
+}
+
+package main
+
+var € ByteStr(0xE2, 0x82, 0xAC)
+
+print("10,23", €)

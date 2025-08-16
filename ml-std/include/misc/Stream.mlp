@@ -1,0 +1,147 @@
+#pragma once
+
+#include <std/loops.mlp>
+#include <std/LazyList.mlp>
+#include <std/functional.mlp>
+
+-- increasing range from "from" up to "to" included
+var LazyRange<= (from, to):{
+    "accepts as input Int, Char or Str"
+    var str? (x):{
+        len(Str(x + 0)) > len(Str(x))
+    }
+    var charInputs? {
+        var charInputs? $true
+        charInputs? &&= str?(from) && len(from) == 1
+        charInputs? &&= str?(to) && len(to) == 1
+        charInputs?
+    }
+    from := tern(charInputs?, Char, Int)(from)
+    to := tern(charInputs?, Char, Int)(to)
+
+    var LazyRange<= _
+    LazyRange<= := (from, to):{
+        tern(from > to, END, {
+            Pair?(from, LazyRange<=(from + 1, to))
+        })
+    }
+
+    LazyRange<=(from, to)
+}
+
+var subscript (subscriptable, nth):{
+    nth == 0 && die("nth should differ from zero (less or greater)")
+
+    var Stream::subscript (stream, nth):{
+        nth > 0 || die("nth should be greater than zero")
+        var subscript_rec _
+        subscript_rec := (stream, nth):{
+            tern(nth == 1, left(some(stream)), {
+                subscript_rec(right(some(stream)), nth + -1)
+            })
+        }
+        subscript_rec(stream, nth)
+    }
+
+    var lambda? (x):{
+        var < (lhs, rhs):{
+            not(lhs > rhs || lhs == rhs)
+        }
+        Str(x) == "<lambda>" && len(x) < 8
+    }
+
+    !tern(lambda?(subscriptable), subscriptable[#nth], {
+        Stream::subscript(subscriptable, nth)
+    })
+}
+
+var Stream::foreach (stream, fn):{
+    var curr stream
+    until(():{none?(curr)}, ():{
+        fn(left(some(curr)))
+        curr := right(some(curr))
+    })
+    stream
+}
+
+var Stream::foreach' {
+    var Stream::foreach' (fn, stream):{
+        Stream::foreach(stream, fn)
+    }
+    curry(Stream::foreach')
+}
+
+var Stream::map {
+    var delay (x):{
+        var delayed ():{x}
+        delayed
+    }
+
+    var Stream::map _
+    Stream::map := (fn, stream):{
+        tern(none?(stream), END, {
+            var curr fn(left(some(stream)))
+            var next delay(Stream::map(fn, right(some(stream))))
+            Pair?(curr, next())
+        })
+    }
+    curry(Stream::map)
+}
+
+var Stream::filter {
+    var delay (x):{
+        var delayed ():{x}
+        delayed
+    }
+
+    var Stream::filter _
+    Stream::filter := (pred, stream):{
+        tern(none?(stream), END, {
+            var curr left(some(stream))
+            var next delay(Stream::filter(pred, right(some(stream))))
+            !tern(pred(curr), next(), {
+                Pair?(curr, next())
+            })
+        })
+    }
+    curry(Stream::filter)
+}
+
+var Stream::reduce {
+    var Stream::reduce (fn, acc, stream):{
+        Stream::foreach(stream, (curr):{
+            acc := fn(acc, curr)
+        })
+        acc
+    }
+    curry(Stream::reduce)
+}
+
+package main
+
+"=== testing subscript on a LazyList ==="
+
+var id (x):{
+    print("evaluated: " + x)
+    x
+}
+
+var stream LazyList(1, id(2), 3)
+
+"we don't need to eval #2 to eval #3"
+print(subscript(stream, 3))
+
+"#2 gets evaluated here"
+print(subscript(stream, 2))
+
+"once an element has been evaluated once, it's not re-evaluated"
+print(subscript(stream, 2))
+
+"=== testing higher-order functions on a stream ==="
+
+var |> (a, b):{
+    b(a)
+}
+
+LazyRange<=(1, 10) |> Stream::map((x):{2 * x}) |> Stream::filter((x):{x % 10 == 0}) |> Stream::foreach'(print)
+LazyRange<=(1, 1000) |> Stream::map((x):{2 * x}) |> Stream::filter((x):{x % 10 == 0}) |> Stream::reduce(+, 0) |> print

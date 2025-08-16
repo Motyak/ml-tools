@@ -1,0 +1,27 @@
+#pragma once
+
+#include <std/loops.mlp>
+
+var putline (x):{
+    print(x)
+}
+
+var getlines ():{
+    var lines []
+    var line getline()
+    until(():{line == $nil}, ():{
+        lines += [line]
+        line := getline()
+    })
+    lines
+}
+
+var stdin ():{
+    slurpfile("/dev/stdin")
+}
+
+var stdout print
+
+package main
+
+print("io.mlp")

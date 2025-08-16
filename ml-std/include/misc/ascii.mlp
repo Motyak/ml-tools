@@ -1,0 +1,21 @@
+#pragma once
+
+#include <std/fn/tern.mlp>
+
+var ascii (c):{
+    Int(Char(c))
+}
+
+package main
+
+var sumOfDigits (n):{
+    n := Str(n)
+    var res 0
+    foreach(n, (c):{
+        ascii('0) <= c && c <= ascii('9) || ERR("not a number")
+        res += ascii(c) - ascii('0)
+    })
+    res
+}
+
+sumOfDigits(1234)

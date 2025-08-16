@@ -1,0 +1,161 @@
+#pragma once
+
+#include <std/cond.mlp>
+#include <std/loops.mlp>
+
+#include <std/Optional.mlp>
+#include <std/LazyList.mlp>
+
+var Some (x):{
+    Optional($true, x)
+}
+
+var Iterator (subscriptable):{
+    var Iterator (container):{
+        container
+        var nth 1
+        var next (peek?):{
+            tern(nth > len(container), END, {
+                var res container[#nth]
+                peek? || {nth += 1}
+                Some(res)
+            })
+        }
+        next
+    }
+
+    var Iterator::fromStream (stream):{
+        stream
+        var next (peek?):{
+            tern(none?(stream), END, {
+                var res left(some(stream))
+                peek? || {
+                    stream := right(some(stream))
+                }
+                Some(res)
+            })
+        }
+        next
+    }
+
+    var lambda? (x):{
+        var < (lhs, rhs):{
+            not(lhs > rhs || lhs == rhs)
+        }
+        Str(x) == "<lambda>" && len(x) < 8
+    }
+    
+    var next {
+        !tern(lambda?(subscriptable), Iterator(subscriptable), {
+            Iterator::fromStream(subscriptable)
+        })
+    }
+
+    var dispatcher (op):{
+        tern(op == 'next, ():{next(0)}, {
+            tern(op == 'peek, ():{next(1)}, {
+                die("unknown iterator operation: `" + op + "`")
+            })
+        })
+    }
+    dispatcher
+}
+
+var ArgIterator (args...):{
+    Iterator(LazyList(args...))
+}
+
+var SeqIterator (init, stop?, update):{
+    let curr init
+
+    var peek ():{
+        Some(curr)
+    }
+
+    var next _
+    next := ():{
+        peek := ():{
+            tern(stop?(curr), END, Some(curr))
+        }
+        next := ():{
+            tern(stop?(curr), END, {
+                update(&curr)
+                Some(curr)
+            })
+        }
+        Some(curr)
+    }
+
+    var dispatcher (op):{
+        tern(op == 'peek, peek, {
+            tern(op == 'next, next, {
+                die("unknown SeqIterator operation: `" + op + "`")
+            })
+        })
+    }
+    dispatcher
+}
+
+var RangeIterator<= (from, to):{
+    {
+        "accepts as input Int, Char or Str"
+        var str? (x):{
+            len(Str(x + 0)) > len(Str(x))
+        }
+        var charInputs? {
+            var charInputs? $true
+            charInputs? &&= str?(from) && len(from) == 1
+            charInputs? &&= str?(to) && len(to) == 1
+            charInputs?
+        }
+        from := tern(charInputs?, Char, Int)(from)
+        to := tern(charInputs?, Char, Int)(to)
+    }
+    var >= (a, b):{
+        a > b || a == b
+    }
+    var RangeIterator<= {
+        var i from
+        var stop? (i):{i >= to}
+        var update (i):{i += 1}
+        SeqIterator(i, stop?, update)
+    }
+    RangeIterator<=
+}
+
+var peek (iterator):{
+    iterator('peek)()
+}
+
+var next (iterator):{
+    iterator('next)()
+}
+
+-- augment foreach() from loops.mlp
+{
+    var Container::foreach foreach
+
+    foreach := (OUT iterable, fn):{
+        var Iterator::foreach (iterator, fn):{
+            var curr next(iterator)
+            until(():{none?(curr)}, ():{
+                fn(some(curr))
+                curr := next(iterator)
+            })
+        }
+
+        var < (a, b):{
+            (a > b || a == b) == $false
+        }
+        var lambda? (x):{
+            Str(x) == "<lambda>" && len(x) < 8
+        }
+        tern(lambda?(iterable), Iterator::foreach(iterable, fn), {
+            Container::foreach(&iterable, fn)
+        })
+    }
+}
+
+package main
+
+print("Iterator.mlp")

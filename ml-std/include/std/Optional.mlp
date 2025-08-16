@@ -1,0 +1,52 @@
+#pragma once
+
+#include <std/cond.mlp>
+
+var Optional (some?, val):{
+    var none? ():{
+        not(some?)
+    }
+
+    var some ():{
+        some? || {
+            die("calling some() on empty Optional")
+        }
+        val
+    }
+
+    '----------------
+
+    var dispatcher (op):{
+        tern(op == 'none?, none?, {
+            tern(op == 'some, some, {
+                die("unknown Optional operation: `" + op + "`")
+            })
+        })
+    }
+
+    dispatcher
+}
+
+var none? (opt):{
+    opt('none?)()
+}
+
+var some (opt):{
+    opt('some)()
+}
+
+package main
+
+{
+    var opt Optional($true, 'someval)
+    -- var opt Optional($false, _)
+    none?(opt) || {
+        print("opt contains", some(opt))
+    }
+    none?(opt) && {
+        print("opt is empty")
+    }
+    "the following would die() if opt were empty"
+    some(opt)
+    _
+}

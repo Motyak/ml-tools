@@ -1,0 +1,52 @@
+#pragma once
+
+var min (a, b, others...):{
+    var < (lhs, rhs):{
+        not(lhs > rhs || lhs == rhs)
+    }
+    var min (lhs, rhs):{
+        tern(lhs < rhs, lhs, rhs)
+    }
+    reduce(min, a, List(b, others...))
+}
+
+var min' {
+    var min' (subscriptable):{
+        var < (lhs, rhs):{
+            not(lhs > rhs || lhs == rhs)
+        }
+        var min2 (lhs, rhs):{
+            tern(lhs < rhs, lhs, rhs)
+        }
+        var min (container):{
+            tern(len(container) == 0, ERR("empty container"), {
+                tern(len(container) == 1, container[#1], {
+                    reduce(min2, container[#1], container[#2..-1])
+                })
+            })
+        }
+        var Stream::min (stream):{
+            tern(none?(stream), ERR("empty stream"), {
+                reduce(min2, left(some(stream)), right(some(stream)))
+            })
+        }
+
+        var lambda? (x):{
+            var < (lhs, rhs):{
+                not(lhs > rhs || lhs == rhs)
+            }
+            Str(x) == "<lambda>" && len(x) < 8
+        }
+
+        !tern(lambda?(subscriptable), min(subscriptable), {
+            Stream::min(subscriptable)
+        })
+    }
+    curry(min')
+}
+
+package main
+
+min(1, 2, 3, 4, 5, 6)
+[1, 2, 3, 4, 5, 6] |> min'
+1 .. 10 |> min'

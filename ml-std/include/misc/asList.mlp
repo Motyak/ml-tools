@@ -1,0 +1,11 @@
+#pragma once
+
+var asList (container):{
+    [] + container
+}
+
+package main
+
+List([1, 2, 3])
+asList([1, 2, 3])
+asList("fds")

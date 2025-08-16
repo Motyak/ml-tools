@@ -1,0 +1,52 @@
+#pragma once
+
+#include <std/fn/Iterator.mlp>
+#include <std/fn/Optional.mlp>
+#include <std/fn/loops.mlp>
+#include <std/fn/tern.mlp>
+
+var any {
+    var any (pred, subscriptable):{
+        var it Iterator(subscriptable)
+        var any $false
+        var curr next(it)
+        until(():{any || none?(curr)}, ():{
+            tern(pred(some(curr)), {any := $true}, {
+                curr := next(it)
+            })
+        })
+        any
+    }
+    curry(any)
+}
+
+package main
+
+var |> (input, fn):{
+    fn(input)
+}
+
+var .. LazyRange<=
+
+var is_even (n):{
+    var in (elem, container):{
+        var i 1
+        var found $false
+        until(():{found || i > len(container)}, ():{
+            found ||= container[#i] == elem
+            i += 1
+        })
+        found
+    }
+    Str(Int(n))[#-1] in "02468"
+}
+
+var id (x):{
+    print("evaluated: " + x)
+    x
+}
+
+[1, 3] |> any(is_even) |> stdout
+-- short circuit
+LazyList(1, 2, id(3)) |> any(is_even) |> stdout
+

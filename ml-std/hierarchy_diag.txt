@@ -1,0 +1,32 @@
+              iterable
+                 |
+   +-------------+-------------+
+   |                           |
+Iterator                   container
+                               |
+                         +-----+-----+
+                         |           |
+                        Str         List
+
+
+           subscriptable
+                 |
+   +-------------+-------------+
+   |                           |
+ Stream                    container
+                               |
+                         +-----+-----+
+                         |           |
+                        Str         List
+
+---
+
+subscriptable:
+  -> if we can access by #index in a repeatable way
+     (without consuming the parent object,
+      as in an iterator)
+
+iterable:
+  -> if we can traverse elements sequentially
+
+(iterability is a more flexible requirement than subscriptability)

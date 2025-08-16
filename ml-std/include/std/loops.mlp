@@ -1,0 +1,174 @@
+#pragma once
+
+var while (cond, do):{
+    var loop _
+    loop := ():{
+        cond() && {
+            do()
+            _ := loop()
+        }
+        _
+    }
+    loop()
+}
+
+var until (cond, do):{
+    var loop _
+    loop := ():{
+        cond() || {
+            do()
+            _ := loop()
+        }
+        _
+    }
+    loop()
+}
+
+var do_while (do, cond):{
+    do()
+    while(cond, do)
+}
+
+var do_until (do, cond):{
+    do()
+    until(cond, do)
+}
+
+var foreach (OUT container, fn):{
+    var nth 1
+    until(():{nth > len(container)}, ():{
+        fn(&container[#nth])
+        nth += 1
+    })
+    container
+}
+
+package main
+
+var < (a, b):{
+    (a > b || a == b) == $false
+}
+
+"=== showcasing while loop ==="
+{
+    var i 0
+    var cond ():{i < 10'000}
+    while(cond, ():{
+        i += 1
+    })
+    print("i =", i)
+    _
+}
+
+"=== showcasing until loop ==="
+{
+    var i 0
+    var cond ():{i == 10'000}
+    until(cond, ():{
+        i += 1
+    })
+    print("i =", i)
+    _
+}
+
+var <> (a, b):{
+    a == b == $false
+}
+
+"=== showcasing do..while loop ==="
+{
+    var i _
+    var cond ():{i <> 0}
+    do_while(():{
+        print("we enter loop at least once")
+        i := 0
+    }, cond)
+    _
+}
+
+"=== showcasing do..until loop ==="
+{
+    var i _
+    var cond ():{i == 0}
+    do_until(():{
+        print("we enter loop at least once")
+        i := 0
+    }, cond)
+    _
+}
+
+var upper (OUT c):{
+    var - (a, b):{
+        a + b + b * -2
+    }
+
+    var ascii (c):{
+        Int(Char(c))
+    }
+
+    c := Char(c)
+    ascii(c) > ascii('Z) && {
+        c -= ascii('a) - ascii('A)
+    }
+    c
+}
+
+"=== showcasing foreach loop ==="
+{
+    var str "abc"
+    foreach(str, (c):{
+        print(upper(c))
+    })
+
+    var list [1, 2, 3]
+    foreach(list, (i):{
+        print(2 * i)
+    })
+
+    var map ['a:1, 'b:2, 'c:3]
+    foreach([] + map, (list):{
+        var key list[#1]
+        var value list[#2]
+        print(key, "=>", value)
+    })
+    _
+}
+
+"=== showcasing foreach using its return value ==="
+{
+    var str "abc"
+    var newstr foreach(str, upper)
+    print("before:", str)
+    print("after:", newstr)
+
+    var list [1, 2, 3]
+    var newlist foreach(list, (n):{n *= 2})
+    print("before:", list)
+    print("after:", newlist)
+
+    var map ['a:1, 'b:2, 'c:3]
+    var newmap foreach([] + map, (x):{
+        var key x[#1]
+        var value x[#2]
+        x := key
+    })
+    print("before:", map)
+    print("after:", newmap)
+    _
+}
+
+"=== showcasing foreach fn when passing by ref ==="
+{
+    var str "abc"
+    foreach(str, upper)
+    print("before:", str)
+    foreach(&str, upper)
+    print("after:", str)
+
+    var list [1, 2, 3]
+    foreach(list, (n):{n *= 2})
+    print("before:", list)
+    foreach(&list, (n):{n *= 2})
+    print("after:", list)
+    _
+}

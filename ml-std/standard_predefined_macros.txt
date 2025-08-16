@@ -1,0 +1,10 @@
+__FILE__
+__LINE__
+__DATE__
+__TIME__
+__STDC__
+__STDC_VERSION__
+__STDC_HOSTED__
+__cplusplus
+__OBJC__
+__ASSEMBLER__

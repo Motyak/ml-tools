@@ -1,0 +1,50 @@
+#pragma once
+
+#include <std.mlp>
+
+var sort {
+    "accepts as input Str or List"
+    var list? {
+        var list? (x):{
+            var str? {
+                len(Str(x + '!)) == len(Str(x)) + 1
+            }
+            not(str?)
+        }
+        list?(container)
+    }
+
+    var sort (precedes?, container):{
+        var sort _
+        sort := (precedes?, list):{
+            tern(len(list) < 2, list, {
+                var mid list[#1]
+                var left list[#2..-1] |> filter((x):{precedes?(x, mid)})
+                var right list[#2..-1] |> filter((x):{not(precedes?(x, mid))})
+                sort(precedes?, left) + [mid] + sort(precedes?, right)
+            })
+        }
+
+        var Str::sort _
+        Str::sort := (precedes?, str):{
+            tern(len(str) < 2, str, {
+                var mid str[#1]
+                var left str[#2..-1] |> filter((x):{precedes?(x, mid)})
+                var right str[#2..-1] |> filter((x):{not(precedes?(x, mid))})
+                Str::sort(precedes?, left) + mid + Str::sort(precedes?, right)
+            })
+        }
+
+        tern(list?, sort(precedes?, container), {
+            Str::sort(precedes?, container)
+        })
+    }
+
+    curry(sort)
+}
+
+[3, 1, 4, 15, 9, 2, 6, 5, 35, 8, 97] |> sort(<) |> stdout
+[3, 1, 4, 15, 9, 2, 6, 5, 35, 8, 97] |> sort(>) |> stdout
+
+"Bonjour, je m'appelle Motyak." |> sort(<) |> stdout
+"Bonjour, je m'appelle Motyak." |> sort(>) |> stdout

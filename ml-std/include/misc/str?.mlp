@@ -1,0 +1,12 @@
+#pragma once
+
+"accepts as input Int, Char or Str"
+var str? (x):{
+    len(Str(x + 0)) > len(Str(x))
+}
+
+package main
+
+str?('a) && print("'a is a Str")
+str?(Char(97)) && print("Char(97) is a Str")
+str?(97) && print("97 is a Str")

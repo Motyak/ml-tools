@@ -1,0 +1,55 @@
+#pragma once
+
+#include <std/cond.mlp>
+#include <std/Optional.mlp>
+
+"=== PAIR ==================="
+
+var Pair (left, right):{
+    var selector (op):{
+        tern(op == 'left, left, {
+            tern(op == 'right, right, {
+                die("unknown Pair operation: `" + op + "`")
+            })
+        })
+    }
+    selector
+}
+
+var left (pair):{
+    pair('left)
+}
+
+var right (pair):{
+    pair('right)
+}
+
+"=== LAZYLIST ==============="
+
+var Pair? (left, right):{
+    Optional($true, Pair(left, right))
+}
+
+var END {
+    Optional($false, _)
+}
+
+var LazyList {
+    var LazyList-1+ _
+
+    var LazyList (xs...):{
+        tern($#varargs == 0, END, {
+            LazyList-1+(xs...)
+        })
+    }
+
+    LazyList-1+ := (x, xs...):{
+        Pair?(x, LazyList(xs...))
+    }
+
+    LazyList
+}
+
+package main
+
+print("LazyList.mlp")

@@ -1,0 +1,16 @@
+#pragma once
+
+var lambda? (x):{
+    var not (bool):{
+        bool == $false
+    }
+    var < (lhs, rhs):{
+        not(lhs > rhs || lhs == rhs)
+    }
+    Str(x) == "<lambda>" && len(x) < 8
+}
+
+package main
+
+lambda?(lambda?) && print("lambda? is a Lambda")
+lambda?("<lambda>") && print("\"<lambda>\" is a Lambda")

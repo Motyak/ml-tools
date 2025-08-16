@@ -1,0 +1,46 @@
+#pragma once
+
+var max (a, b, others...):{
+    var max (lhs, rhs):{
+        tern(lhs > rhs, lhs, rhs)
+    }
+    reduce(max, a, List(b, others...))
+}
+
+var max' {
+    var max' (subscriptable):{
+        var max2 (lhs, rhs):{
+            tern(lhs > rhs, lhs, rhs)
+        }
+        var max (container):{
+            tern(len(container) == 0, ERR("empty container"), {
+                tern(len(container) == 1, container[#1], {
+                    reduce(max2, container[#1], container[#2..-1])
+                })
+            })
+        }
+        var Stream::max (stream):{
+            tern(none?(stream), ERR("empty stream"), {
+                reduce(max2, left(some(stream)), right(some(stream)))
+            })
+        }
+
+        var lambda? (x):{
+            var < (lhs, rhs):{
+                not(lhs > rhs || lhs == rhs)
+            }
+            Str(x) == "<lambda>" && len(x) < 8
+        }
+
+        !tern(lambda?(subscriptable), max(subscriptable), {
+            Stream::max(subscriptable)
+        })
+    }
+    curry(max')
+}
+
+package main
+
+max(1, 2, 3, 4, 5, 6)
+[1, 2, 3, 4, 5, 6] |> max'
+1 .. 10 |> max'

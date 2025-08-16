@@ -1,0 +1,28 @@
+#pragma once
+
+#include <std/fn/tern.mlp>
+
+var upper (OUT c):{
+    var <= (lhs, rhs):{
+        not(lhs > rhs)
+    }
+
+    var - (lhs, rhs):{
+        lhs + rhs + -2 * rhs
+    }
+
+    tern(ascii(c) <= ascii('Z), c, {
+        var local_c Char(c)
+        local_c -= ascii('a) - ascii('A)
+        c := local_c
+        local_c
+    })
+}
+
+package main
+
+var char 'f
+upper(char)
+char
+upper(&char)
+char

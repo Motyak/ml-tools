@@ -1,0 +1,29 @@
+#pragma once
+
+var count {
+    var count (pred, subscriptable):{
+        var fn (lhs, rhs):{
+            tern(pred(rhs), lhs + 1, lhs)
+        }
+        reduce(fn, 0, subscriptable)
+    }
+    curry(count)
+}
+
+package main
+
+var is_even (n):{
+    var in (elem, container):{
+        var i 1
+        var found $false
+        until(():{found || i > len(container)}, ():{
+            found ||= container[#i] == elem
+            i += 1
+        })
+        found
+    }
+    Str(Int(n))[#-1] in "02468"
+}
+
+[1, 2, 3, 4, 5, 6] |> count(is_even)
+1 .. 10 |> count(is_even)

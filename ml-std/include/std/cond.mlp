@@ -1,0 +1,57 @@
+#pragma once
+
+var tern (cond, if_true, if_false):{
+    var res _
+    cond && {res := if_true}
+    cond || {res := if_false}
+    res
+}
+
+var !tern (cond, if_false, if_true):{
+    tern(cond, if_true, if_false)
+}
+
+var not (bool):{
+    tern(bool, $false, $true)
+}
+
+package main
+
+"=== showcasing if..do and unless..do ==="
+{
+    var cond $true
+    -- var cond $false
+
+    cond && {
+        print("we enter this block")
+    }
+
+    cond || {
+        print("we don't enter this block")
+    }
+    _
+}
+
+"=== showcasing if..else ==="
+{
+    var cond $true
+    -- var cond $false
+
+    tern(cond, print("this is printed"), {
+        print("this is not printed")
+    })
+
+    !tern(cond, print("this is not printed"), {
+        print("this is printed")
+    })
+    _
+}
+
+"=== showcasing ternary operator ==="
+{
+    var n -33
+    -- var n 10
+    var abs tern(n > 0, n, n + -2 * n)
+    print("abs of", n, "is", abs)
+    _
+}

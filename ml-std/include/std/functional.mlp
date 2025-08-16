@@ -1,0 +1,263 @@
+#pragma once
+
+#include <std/cond.mlp>
+#include <std/loops.mlp>
+#include <std/Iterator.mlp>
+
+-- autocurries until the nb of required args has been reached
+var curry_required (requiredArgs, fn):{
+    var >= (a, b):{
+        a > b || a == b
+    }
+    var - (a, b):{
+        a + b + b * -2
+    }
+
+    var curried _
+    curried := (args...):{
+        tern($#varargs - requiredArgs >= 0, fn(args...), {
+            (args2...):{curried(args..., args2...)}
+        })
+    }
+    curried
+}
+
+-- calling curry on a function with no required argument..
+-- ..has no effect => use curry_required instead
+var curry (fn, args...):{
+    curry_required(len(fn), fn)(args...)
+}
+
+var curry_rhs (fn, rhs):{
+    var res (lhs):{
+        fn(lhs, rhs)
+    }
+    res
+}
+
+var foreach' {
+    var foreach' (fn, container):{
+        foreach(container, fn)
+    }
+    curry(foreach')
+}
+
+var map {
+    var .. RangeIterator<=
+
+    var Container::map (fn, container):{
+        var res container
+        foreach(1 .. len(res), (nth):{
+            res[#nth] := fn(res[#nth])
+        })
+        res
+    }
+
+    var Iterator::map (fn, iterator):{
+        iterator
+        var peek ():{
+            var peek iterator('peek)()
+            tern(none?(peek), END, {
+                var res fn(some(peek))
+                Some(res)
+            })
+        }
+
+        var next ():{
+            var next iterator('next)()
+            tern(none?(next), END, {
+                var res fn(some(next))
+                Some(res)
+            })
+        }
+
+        '---
+
+        var dispatcher (op):{
+            tern(op == 'peek, peek, {
+                tern(op == 'next, next, {
+                    die("unknown iterator operation: `" + op + "`")
+                })
+            })
+        }
+        dispatcher
+    }
+
+    var < (lhs, rhs):{
+        not(lhs > rhs || lhs == rhs)
+    }
+    var lambda? (x):{
+        Str(x) == "<lambda>" && len(x) < 8
+    }
+
+    var map (fn, iterable):{
+        tern(lambda?(iterable), Iterator::map(fn, iterable), {
+            Container::map(fn, iterable)
+        })
+    }
+
+    curry(map)
+}
+
+var filter {
+    "accepts as input Str or List"
+    var list? (x):{
+        var str? {
+            len(Str(x + '!)) == len(Str(x)) + 1
+        }
+        not(str?)
+    }
+
+    var .. RangeIterator<=
+
+    var Container::filter (pred, container):{
+        var list? list?(container)
+        var res tern(list?, [], "")
+        foreach(1 .. len(container), (nth):{
+            pred(container[#nth]) && {
+                !tern(list?, {res += container[#nth]}, {
+                    res += [container[#nth]]
+                })
+            }
+        })
+        res
+    }
+
+    var Iterator::filter (pred, iterator):{
+        iterator
+        var peek ():{
+            var curr peek(iterator)
+            var stop_cond ():{
+                none?(curr) || pred(some(curr))
+            }
+            until(stop_cond, ():{
+                next(iterator)
+                curr := peek(iterator)
+            })
+            curr
+        }
+
+        var next ():{
+            var curr next(iterator)
+            var stop_cond ():{
+                none?(curr) || pred(some(curr))
+            }
+            until(stop_cond, ():{
+                curr := next(iterator)
+            })
+            curr
+        }
+
+        '---
+
+        var dispatcher (op):{
+            tern(op == 'peek, peek, {
+                tern(op == 'next, next, {
+                    die("unknown iterator operation: `" + op + "`")
+                })
+            })
+        }
+        dispatcher
+    }
+
+    var < (lhs, rhs):{
+        not(lhs > rhs || lhs == rhs)
+    }
+    var lambda? (x):{
+        Str(x) == "<lambda>" && len(x) < 8
+    }
+
+    var filter (fn, iterable):{
+        tern(lambda?(iterable), Iterator::filter(fn, iterable), {
+            Container::filter(fn, iterable)
+        })
+    }
+
+    curry(filter)
+}
+
+var reduce {
+    var reduce (fn, acc, iterable):{
+        foreach(iterable, (curr):{
+            acc := fn(acc, curr)
+        })
+        acc
+    }
+    curry(reduce)
+}
+
+var compose (fn1, fn2, fns...):{
+    var compose (fn1, fn2):{
+        fn1
+        fn2
+        (x):{fn2(fn1(x))}
+    }
+    reduce(compose, fn1, List(fn2, fns...))
+}
+
+var split {
+    var split (sep, str):{
+        var res []
+        var curr ""
+        foreach(str, (c):{
+            !tern(c == sep, {curr += c}, {
+                res += [curr]
+                curr := ""
+            })
+        })
+        len(curr) > 0 && {res += [curr]}
+        res
+    }
+    curry(split)
+}
+
+var join {
+    var join (sep, list):{
+        var res ""
+        var first_it $true
+        foreach(list, (str):{
+            first_it || {res += sep}
+            res += str
+            first_it := $false
+        })
+        res
+    }
+    curry(join)
+}
+
+package main
+
+var |> (a, b):{
+    b(a)
+}
+
+var upper (OUT c):{
+    var <= (a, b):{
+        a > b == $false
+    }
+    var - (a, b):{
+        a + b + b * -2
+    }
+    var ascii (c):{
+        Int(Char(c))
+    }
+
+    tern(ascii(c) <= ascii('Z), c, {
+        var local_c Char(c)
+        local_c -= ascii('a) - ascii('A)
+        c := local_c
+        local_c
+    })
+}
+
+RangeIterator<=(1, 10) |> map((n):{n * 2}) |> filter((n):{n % 10 == 0}) |> foreach'(print)
+RangeIterator<=(1, 100) |> map((n):{n * 2}) |> filter((n):{n % 10 == 0}) |> reduce(+, 0) |> print
+compose((n):{n + 1}, (n):{n * 2})(10) |> print
+"a,b,c" |> split(",") |> map(upper) |> join("") |> print
+
+var gt20 curry_rhs(>, 20)
+gt20(21) |> print
+gt20(19) |> print
+
+var my+ curry_required(2, +)
+my+(1)(2) |> print

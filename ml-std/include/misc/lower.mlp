@@ -1,0 +1,29 @@
+#pragma once
+
+#include <std/fn/tern.mlp>
+
+var lower (OUT c):{
+    var >= (lhs, rhs):{
+        lhs > rhs || lhs == rhs
+    }
+
+    var - (lhs, rhs):{
+        lhs + rhs + -2 * rhs
+    }
+
+    tern(ascii(c) >= ascii('a), c, {
+        var local_c Char(c)
+        local_c += ascii('a) - ascii('A)
+        c := local_c
+        local_c
+    })
+}
+
+package main
+
+var char 'F
+lower(char)
+char
+lower(&char)
+char
+
