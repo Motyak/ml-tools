@@ -7,6 +7,7 @@ function LV1 {
     cd monlang/src/ast; find -P ~+ -not -name '.*' -name '*.cpp'; >/dev/null cd -
     cd monlang/tools; find -P ~+ -not -name '.*' -name '*.sh'; >/dev/null cd -
     cd monlang; find -P ~+ -maxdepth 1 -type f -not -name '.*' \
+        -not -name 'LICENSE.txt' \
         -not -name 'env.sh' \
         -not -name 'utils.mk' \
         -not -name 'notes.txt' \
@@ -45,6 +46,7 @@ function parser {
     cd monlang-parser/src; find -P ~+ -maxdepth 1 -not -name '.*' -name '*.cpp'; >/dev/null cd -
     cd monlang-parser/tools; find -P ~+ -maxdepth 1 -name 'mrproper.sh'; >/dev/null cd -
     cd monlang-parser; find -P ~+ -maxdepth 1 -type f -not -name '.*' \
+        -not -name 'LICENSE.txt' \
         -not -name 'env.sh' \
         -not -name 'utils.mk' \
         -not -name 'notes.txt' \
@@ -57,6 +59,7 @@ function interpreter {
     cd monlang-interpreter/include/monlang-interpreter; find -P ~+ -not -name '.*' -name '*.h'; >/dev/null cd -
     cd monlang-interpreter/src; find -P ~+ -not -name '.*' -name '*.cpp'; >/dev/null cd -
     cd monlang-interpreter; find -P ~+ -maxdepth 1 -type f -not -name '.*' \
+        -not -name 'LICENSE.txt' \
         -not -name 'env.sh' \
         -not -name 'utils.mk' \
         -not -name 'notes.txt' \
@@ -67,6 +70,7 @@ function interpreter {
 
 function server {
     cd monlang-server; find -P ~+ -maxdepth 1 -type f -not -name '.*' \
+        -not -name 'LICENSE.txt' \
         -not -name 'notes.txt' \
         -not -name 'LV1.ERR.txt' \
         -not -name 'LV2.ERR.txt' \
@@ -75,6 +79,7 @@ function server {
 
 function ml_tools {
     find -P ~+ -maxdepth 1 -type f -not -name '.*' \
+        -not -name 'LICENSE.txt' \
         -not -name 'testshebang.ml' \
         -not -name 'filelist.txt'
 }
@@ -86,7 +91,7 @@ function doit {
     for module in "$@"; do
         $module >> filelist.txt
     done
-    var="$(cloc --list-file=filelist.txt --by-file | perl -pe 's/^.*ml-tools/./g')"
+    var="$(cloc --list-file=filelist.txt --by-file --skip-uniqueness | perl -pe 's/^.*ml-tools/./g')"
     sum_row="$(tail -n2 <<< "$var" | head -n2)"
     table="$(tail -n+2 <<< "$var")"
     tac <<< "$table" \

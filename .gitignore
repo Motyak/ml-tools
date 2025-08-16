@@ -1,2 +1,3 @@
 ml-std/include/std/*.ml
+ml-std/include/*.ml
 
