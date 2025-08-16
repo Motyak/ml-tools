@@ -3,9 +3,10 @@
 shopt -s expand_aliases
 
 function emptydir (
-    local dir="$1"
-    shopt -s failglob
-    { : ${dir}/*; } 2>/dev/null
+    shopt -s nullglob
+    local files=("$1"/*)
+    [ -d "$1" ] || return 2
+    [ ${#files[@]} -eq 0 ]
 )
 
 alias make='make -j16'
