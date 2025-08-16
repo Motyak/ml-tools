@@ -4,14 +4,11 @@
 
 var sort {
     "accepts as input Str or List"
-    var list? {
-        var list? (x):{
-            var str? {
-                len(Str(x + '!)) == len(Str(x)) + 1
-            }
-            not(str?)
+    var list? (x):{
+        var str? {
+            len(Str(x + '!)) == len(Str(x)) + 1
         }
-        list?(container)
+        not(str?)
     }
 
     var sort (precedes?, container):{
@@ -35,6 +32,7 @@ var sort {
             })
         }
 
+        var list? list?(container)
         tern(list?, sort(precedes?, container), {
             Str::sort(precedes?, container)
         })

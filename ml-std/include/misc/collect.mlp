@@ -1,0 +1,28 @@
+#pragma once
+
+#include <std.mlp>
+
+var collect {
+    var < (lhs, rhs):{
+        not(lhs > rhs || lhs == rhs)
+    }
+    var lambda? (x):{
+        Str(x) == "<lambda>" && len(x) < 8
+    }
+
+    var collect (elements...):{
+        var elements ArgIterator(elements...)
+        var res []
+        foreach(elements, (curr):{
+            !tern(lambda?(curr), {res += [curr]}, {
+                res += reduce((a, b):{a + [b]}, [], curr)
+            })
+        })
+        res
+    }
+    collect
+}
+
+package main
+
+collect(1 .. 10, 12, 14) |> stdout
