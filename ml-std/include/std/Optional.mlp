@@ -48,5 +48,5 @@ package main
     }
     "the following would die() if opt were empty"
     some(opt)
-    _
+    ;
 }

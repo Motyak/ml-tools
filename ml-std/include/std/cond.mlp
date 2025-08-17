@@ -29,7 +29,7 @@ package main
     cond || {
         print("we don't enter this block")
     }
-    _
+    ;
 }
 
 "=== showcasing if..else ==="
@@ -44,7 +44,7 @@ package main
     !tern(cond, print("this is not printed"), {
         print("this is printed")
     })
-    _
+    ;
 }
 
 "=== showcasing ternary operator ==="
@@ -53,5 +53,5 @@ package main
     -- var n 10
     var abs tern(n > 0, n, n + -2 * n)
     print("abs of", n, "is", abs)
-    _
+    ;
 }

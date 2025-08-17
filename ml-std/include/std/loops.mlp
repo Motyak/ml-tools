@@ -7,7 +7,7 @@ var while (cond, do):{
             do()
             _ := loop()
         }
-        _
+        ;
     }
     loop()
 }
@@ -19,7 +19,7 @@ var until (cond, do):{
             do()
             _ := loop()
         }
-        _
+        ;
     }
     loop()
 }
@@ -57,7 +57,7 @@ var < (a, b):{
         i += 1
     })
     print("i =", i)
-    _
+    ;
 }
 
 "=== showcasing until loop ==="
@@ -68,7 +68,7 @@ var < (a, b):{
         i += 1
     })
     print("i =", i)
-    _
+    ;
 }
 
 var <> (a, b):{
@@ -83,7 +83,7 @@ var <> (a, b):{
         print("we enter loop at least once")
         i := 0
     }, cond)
-    _
+    ;
 }
 
 "=== showcasing do..until loop ==="
@@ -94,7 +94,7 @@ var <> (a, b):{
         print("we enter loop at least once")
         i := 0
     }, cond)
-    _
+    ;
 }
 
 var upper (OUT c):{
@@ -131,7 +131,7 @@ var upper (OUT c):{
         var value list[#2]
         print(key, "=>", value)
     })
-    _
+    ;
 }
 
 "=== showcasing foreach using its return value ==="
@@ -154,7 +154,7 @@ var upper (OUT c):{
     })
     print("before:", map)
     print("after:", newmap)
-    _
+    ;
 }
 
 "=== showcasing foreach fn when passing by ref ==="
@@ -170,5 +170,5 @@ var upper (OUT c):{
     print("before:", list)
     foreach(&list, (n):{n *= 2})
     print("after:", list)
-    _
+    ;
 }
