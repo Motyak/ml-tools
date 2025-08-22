@@ -3,7 +3,7 @@
 #include <std/cond.mlp>
 #include <std/Optional.mlp>
 
-"=== PAIR ==================="
+"=== PAIR ============================="
 
 var Pair (left, right):{
     var selector (op):{
@@ -24,7 +24,7 @@ var right (pair):{
     pair('right)
 }
 
-"=== LAZYLIST ==============="
+"=== LAZYLIST ========================="
 
 var Pair? (left, right):{
     Optional($true, Pair(left, right))

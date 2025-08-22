@@ -6,6 +6,8 @@ set -o pipefail
 # protection against corrupted output file
 trap '[ -f "$FILEOUT" ] && rm -f "$FILEOUT"' ERR
 
+SCRIPT_DIR="$(dirname "$0")"
+
 if [ "$1" == -o ]; then
     FILEOUT="$2"
     [[ "$FILEOUT" =~ ^-$ ]] && FILEOUT="/dev/stdout"
@@ -34,10 +36,10 @@ fi
 
 cpp_input="$(cat << EOF
 #warning "=== STANDARD DEFINED MACROS ==="
-$(awk '{print "#undef " $0}' standard_predefined_macros.txt)
+$(awk '{print "#undef " $0}' "${SCRIPT_DIR}"/standard_predefined_macros.txt)
 
 #warning "=== COMMON DEFINED MACROS ==="
-$(awk '{print "#undef " $0}' common_predefined_macros.txt)
+$(awk '{print "#undef " $0}' "${SCRIPT_DIR}"/common_predefined_macros.txt)
 
 #warning "=== OTHER DEFINED MACROS ==="
 $(cpp -undef -dM <<< "" | awk '{print "#undef " $2}')
@@ -60,7 +62,7 @@ cpp_output="$(2>/dev/null cpp -w -undef -nostdinc -fpreprocessed -C -fdirectives
 perl -0pe 's/^package main\n.*?\n# /# /gms' <<< "$cpp_output" \
     | perl -pe 's/^package main\n/"package main"\n/gm' \
     | perl -pe 's/^package (\S+)\n//gm' \
-    | perl preprocess_cpp_linemarkers.pl "$FILEIN" > "$FILEOUT"
+    | perl "${SCRIPT_DIR}"/preprocess_cpp_linemarkers.pl "$FILEIN" > "$FILEOUT"
 
 [ -f "$FILEOUT" ] && touch -r "$FILEIN" "$FILEOUT"
 

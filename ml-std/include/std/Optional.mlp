@@ -14,8 +14,6 @@ var Optional (some?, val):{
         val
     }
 
-    '----------------
-
     var dispatcher (op):{
         tern(op == 'none?, none?, {
             tern(op == 'some, some, {
@@ -23,7 +21,6 @@ var Optional (some?, val):{
             })
         })
     }
-
     dispatcher
 }
 

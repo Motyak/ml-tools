@@ -259,5 +259,7 @@ var gt20 curry_rhs(>, 20)
 gt20(21) |> print
 gt20(19) |> print
 
-var my+ curry_required(2, +)
-my+(1)(2) |> print
+var my+ curry_required(3, +)
+my+(1, 2)(3) |> print
+my+(1)(2, 3) |> print
+my+(1)(2)(3) |> print

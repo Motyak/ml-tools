@@ -127,8 +127,8 @@ var upper (OUT c):{
 
     var map ['a:1, 'b:2, 'c:3]
     foreach([] + map, (list):{
-        var key list[#1]
-        var value list[#2]
+        let key list[#1]
+        let value list[#2]
         print(key, "=>", value)
     })
     ;
@@ -148,8 +148,8 @@ var upper (OUT c):{
 
     var map ['a:1, 'b:2, 'c:3]
     var newmap foreach([] + map, (x):{
-        var key x[#1]
-        var value x[#2]
+        let key x[#1]
+        let value x[#2]
         x := key
     })
     print("before:", map)
