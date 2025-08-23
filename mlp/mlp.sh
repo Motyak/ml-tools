@@ -37,15 +37,14 @@ fi
 }
 
 [ -n "$DIFFMODE" ] && {
-    if [ -f "$FILEOUT" ]; then
-        exit_code=0
-        git diff --no-index --no-prefix -U1000 <("$0" -o - "$FILEIN" $ARGS) "$FILEOUT" || {
-            exit_code=$?
-        }
-    else
-        exit_code=1
-    fi
-    exit $exit_code
+    # make sure we have no script error before doing the git diff
+    >/dev/null perl preprocess.pl "$FILEIN" $ARGS || exit $?
+    [ -f "$FILEOUT" ] || exit 1
+    exit_code=0
+    git diff --no-index --no-prefix -U1000 <(perl preprocess.pl "$FILEIN" $ARGS) "$FILEOUT" || {
+        exit_code=$?
+    }
+    exit $exit_code # git diff exit code
 }
 
 perl preprocess.pl "$FILEIN" $ARGS > "$FILEOUT"

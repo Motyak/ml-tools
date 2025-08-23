@@ -22,10 +22,10 @@
 Modules (.mlp files exporting symbols) should have their
 `include` directives, if any, at the very top.
 
-A `package main` line allows to separate code to always export
-from code to only export when pre-processing as the main file.
+A `package main` line allows to separate <code to always export>
+from <code to only export when pre-processing as the main file>.
 
-There should be no `include` directive after the `package main` line.
+There should be no `include` directive starting from the `package main` line.
 
 ---
 
