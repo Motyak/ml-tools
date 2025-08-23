@@ -1,5 +1,3 @@
-#pragma once
-
 var while (cond, do):{
     var loop _
     loop := ():{

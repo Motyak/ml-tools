@@ -1,6 +1,4 @@
-#pragma once
-
-#include <std/loops.mlp>
+include <std/loops.mlp>
 
 var putline (x):{
     print(x)

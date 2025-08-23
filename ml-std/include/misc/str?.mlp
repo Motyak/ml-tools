@@ -1,5 +1,3 @@
-#pragma once
-
 "accepts as input Int, Char or Str"
 var str? (x):{
     len(Str(x + 0)) > len(Str(x))

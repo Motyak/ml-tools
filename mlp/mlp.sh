@@ -5,6 +5,20 @@ set -o errexit
 # protection against corrupted output file
 trap '[ -f "$FILEOUT" ] && rm -f "$FILEOUT"' ERR
 
+CMD="$0${@:+ }$@"
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+function ERR {
+    local msg="$1"
+    >&2 echo "$msg"
+    >&2 echo "  $ $CMD"
+    exit 1
+}
+
+function preprocess {
+    perl "${SCRIPT_DIR}/preprocess.pl" "$@" || return $?
+}
+
 if [ "$1" == diff ]; then
     DIFFMODE=x
     shift
@@ -21,10 +35,8 @@ else
     ARGS="${@:2:$#-1}"
 fi
 
-[[ "$FILEIN" =~ ".mlp"$ ]] || {
-    >&2 echo "Invalid file extension: \`${FILEIN##*.}\`"
-    exit 1
-}
+[ "$FILEIN" == "" ] && ERR "Missing file argument"
+[[ "$FILEIN" =~ ".mlp"$ ]] || ERR "Invalid file extension: \`${FILEIN##*.}\`"
 
 # for this to work, we align output file last modif date
 # ..with input file's, at the time of preprocessing
@@ -38,16 +50,16 @@ fi
 
 [ -n "$DIFFMODE" ] && {
     # make sure we have no script error before doing the git diff
-    >/dev/null perl preprocess.pl "$FILEIN" $ARGS || exit $?
+    >/dev/null preprocess "$FILEIN" $ARGS || exit $?
     [ -f "$FILEOUT" ] || exit 1
     exit_code=0
-    git diff --no-index --no-prefix -U1000 <(perl preprocess.pl "$FILEIN" $ARGS) "$FILEOUT" || {
+    git diff --no-index --no-prefix -U1000 <(preprocess "$FILEIN" $ARGS) "$FILEOUT" || {
         exit_code=$?
     }
     exit $exit_code # git diff exit code
 }
 
-perl preprocess.pl "$FILEIN" $ARGS > "$FILEOUT"
+preprocess "$FILEIN" $ARGS > "$FILEOUT"
 
 [ -f "$FILEOUT" ] && touch -r "$FILEIN" "$FILEOUT"
 

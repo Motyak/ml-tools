@@ -7,10 +7,16 @@ use constant false => 0;
 use constant _ => undef;
 binmode(STDOUT, ":utf8");
 
-unless (@ARGV) {
-    print STDERR "Missing file argument\n";
+my $CMD = "$0" . " " x (@ARGV > 0) . join(" ", @ARGV);
+
+sub ERR {
+    my ($msg) = @_;
+    print STDERR "${msg}\n";
+    print STDERR "  \$ ${CMD}\n";
     exit 1;
 }
+
+@ARGV or ERR("Missing file argument");
 my $FILE = shift @ARGV;
 
 my @INCLUDE_PATH = ();
@@ -26,8 +32,7 @@ my @INCLUDE_PATH = ();
             $include_arg = true;
         }
         else {
-            print STDERR "Unknown option/argument: `$arg`\n";
-            exit 1;
+            ERR("Unknown option/argument: `$arg`");
         }
     }
 }
@@ -66,8 +71,7 @@ sub search_file {
 
 sub OPEN_FILE_ERR {
     my ($file, $open_err) = @_;
-    print STDERR "Could not open file `$file`: $open_err\n";
-    exit 1;
+    ERR("Could not open file `$file`: $open_err");
 }
 
 sub INCLUDE_ERR {
@@ -76,10 +80,8 @@ sub INCLUDE_ERR {
     my $include = substr $line, 9, -1;
     my $err_msg = "${file}:$.:10: ERR: no include path in which to search for `${include}`\n";
     $err_msg .= rjust("$linenb", 5) . " | " . $line . "\n";
-    $err_msg .= " " x 5 . " | " . " " x 9 . "^\n";
-    print STDERR $err_msg;
-
-    exit 1;
+    $err_msg .= " " x 5 . " | " . " " x 9 . "^";
+    ERR($err_msg);
 }
 
 sub preprocess {

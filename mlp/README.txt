@@ -33,4 +33,4 @@ There should be no `include` directive starting from the `package main` line.
 cat <(./mlp.sh -o - include/std.mlp -I include) src.ml > output.ml
 
 # generate all std/ .ml files from their respective .mlp
-for f in include/*.mlp; do ./mlp.sh $f -I include; done
+for f in include/std/*.mlp; do ./mlp.sh $f -I include; done

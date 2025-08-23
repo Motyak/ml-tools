@@ -1,10 +1,8 @@
-#pragma once
+include <std/cond.mlp>
+include <std/loops.mlp>
 
-#include <std/cond.mlp>
-#include <std/loops.mlp>
-
-#include <std/Optional.mlp>
-#include <std/LazyList.mlp>
+include <std/Optional.mlp>
+include <std/LazyList.mlp>
 
 var Some (x):{
     Optional($true, x)

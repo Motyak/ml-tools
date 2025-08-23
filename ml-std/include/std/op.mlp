@@ -1,9 +1,7 @@
-#pragma once
-
-#include <std/cond.mlp>
-#include <std/loops.mlp>
-#include <std/Iterator.mlp>
-#include <std/functional.mlp>
+include <std/cond.mlp>
+include <std/loops.mlp>
+include <std/Iterator.mlp>
+include <std/functional.mlp>
 
 var .. RangeIterator<=
 

@@ -1,6 +1,4 @@
-#pragma once
-
-#include <std/fn/tern.mlp>
+include <std/fn/tern.mlp>
 
 var upper (OUT c):{
     var <= (lhs, rhs):{

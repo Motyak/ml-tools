@@ -1,6 +1,4 @@
-#pragma once
-
-#include <std/cond.mlp>
+include <std/cond.mlp>
 
 var Optional (some?, val):{
     var none? ():{

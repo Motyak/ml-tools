@@ -1,5 +1,3 @@
-#pragma once
-
 var count {
     var count (pred, subscriptable):{
         var fn (lhs, rhs):{

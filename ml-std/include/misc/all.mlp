@@ -1,9 +1,7 @@
-#pragma once
-
-#include <std/fn/Iterator.mlp>
-#include <std/fn/Optional.mlp>
-#include <std/fn/loops.mlp>
-#include <std/fn/tern.mlp>
+include <std/fn/Iterator.mlp>
+include <std/fn/Optional.mlp>
+include <std/fn/loops.mlp>
+include <std/fn/tern.mlp>
 
 var all {
     var all (pred, subscriptable):{

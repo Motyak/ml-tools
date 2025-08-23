@@ -1,5 +1,3 @@
-#pragma once
-
 var max (a, b, others...):{
     var max (lhs, rhs):{
         tern(lhs > rhs, lhs, rhs)

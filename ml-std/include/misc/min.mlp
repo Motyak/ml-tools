@@ -1,5 +1,3 @@
-#pragma once
-
 var min (a, b, others...):{
     var < (lhs, rhs):{
         not(lhs > rhs || lhs == rhs)

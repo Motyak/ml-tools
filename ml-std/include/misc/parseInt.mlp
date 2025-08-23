@@ -1,5 +1,3 @@
-#pragma once
-
 var parseInt (str):{
     var ** (a, b):{
         var res 1

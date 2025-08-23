@@ -1,8 +1,6 @@
-#pragma once
-
-#include <std/loops.mlp>
-#include <std/LazyList.mlp>
-#include <std/functional.mlp>
+include <std/loops.mlp>
+include <std/LazyList.mlp>
+include <std/functional.mlp>
 
 -- increasing range from "from" up to "to" included
 var LazyRange<= (from, to):{

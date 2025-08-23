@@ -1,6 +1,4 @@
-#pragma once
-
-#include <std.mlp>
+include <std.mlp>
 
 var sort {
     "accepts as input Str or List"

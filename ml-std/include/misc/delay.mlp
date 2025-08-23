@@ -1,5 +1,3 @@
-#pragma once
-
 var delay (x):{
     var delayed ():{x}
     delayed

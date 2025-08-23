@@ -1,5 +1,3 @@
-#pragma once
-
 var lambda? (x):{
     var not (bool):{
         bool == $false
