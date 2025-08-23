@@ -7,15 +7,34 @@ use constant false => 0;
 use constant _ => undef;
 binmode(STDOUT, ":utf8");
 
-my $file = shift @ARGV;
+unless (@ARGV) {
+    print STDERR "Missing file argument\n";
+    exit 1;
+}
+my $FILE = shift @ARGV;
 
-my @INCLUDE_PATH = (
-    ".",
-);
+my @INCLUDE_PATH = ();
 
-# 1 define @INCLUDE_PATH, init as empty
-# 2 parse -I args and add them to @INCLUDE_PATH
-# 3 if @INCLUDE_PATH is empty, add "."
+{
+    my $include_arg = false;
+    foreach my $arg (@ARGV) {
+        if ($include_arg) {
+            push(@INCLUDE_PATH, $arg);
+            $include_arg = false;
+        }
+        elsif ($arg =~ /^-I$/) {
+            $include_arg = true;
+        }
+        else {
+            print STDERR "Unknown option/argument: `$arg`\n";
+            exit 1;
+        }
+    }
+}
+
+unless (@INCLUDE_PATH) {
+    push(@INCLUDE_PATH, ".");
+}
 
 sub rjust {
     my ($str, $width) = @_;
@@ -79,7 +98,7 @@ sub preprocess {
     while (my $line = <$fh>) {
         chomp $line;
 
-        if ($line =~ /^include <(\S+)>$/) {
+        if ($line =~ /^include <(\S+)>$/ && !($in_package_main)) {
             my $included_file = search_file(\@INCLUDE_PATH, $1) or INCLUDE_ERR($file, $line, $.);
             next if exists $files{$included_file};
             $files{$included_file} = _;
@@ -106,7 +125,14 @@ sub preprocess {
         }
 
         elsif ($line =~ /^package main$/) {
+            unless ($rec_call) {
+                $res .= "\"$&\"\n";
+            }
             $in_package_main = true;
+        }
+
+        elsif ($line =~ /^package \S+$/) {
+            $res .= "\"$&\"\n";
         }
 
         elsif ($in_package_main) {
@@ -128,7 +154,5 @@ sub preprocess {
     return $res;
 }
 
-unless (caller) {
-    my $res = preprocess($file);
-    print($res);
-}
+my $res = preprocess($FILE);
+print($res);
