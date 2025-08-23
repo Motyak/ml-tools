@@ -77,6 +77,19 @@ function server {
     ; >/dev/null cd -
 }
 
+function preprocessor {
+    cd mlp; find -P ~+ -maxdepth 1 -type f -not -name '.*'; >/dev/null cd -
+}
+
+function std {
+    cd ml-std; find -P ~+ -maxdepth 1 -type f -not -name '.*' \
+        -not -name 'mlp.sh' \
+        -not -name 'README.txt' \
+    ; >/dev/null cd -
+    cd ml-std/include; find -P ~+ -maxdepth 1 -type f -name 'std.mlp'; >/dev/null cd -
+    cd ml-std/include/std; find -P ~+ -maxdepth 1 -type f -not -name '.*' -name '*.mlp'; >/dev/null cd -
+}
+
 function ml_tools {
     find -P ~+ -maxdepth 1 -type f -not -name '.*' \
         -not -name 'LICENSE.txt' \
@@ -107,7 +120,7 @@ trap 'rm -f filelist.txt' EXIT
 MODULES="$@"
 
 [ "$MODULES" == "" ] && {
-    doit LV1 LV2 montree utils parser interpreter server ml_tools
+    doit LV1 LV2 montree utils parser interpreter server preprocessor std ml_tools
     exit 0
 }
 
