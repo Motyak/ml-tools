@@ -3,9 +3,9 @@
 shopt -s expand_aliases
 
 function emptydir (
+    [ -d "$1" ] || return 2
     shopt -s nullglob
     local files=("$1"/*)
-    [ -d "$1" ] || return 2
     [ ${#files[@]} -eq 0 ]
 )
 
