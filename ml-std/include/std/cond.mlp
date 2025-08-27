@@ -13,6 +13,26 @@ var not (bool):{
     tern(bool, $false, $true)
 }
 
+var CaseAnalysis ():{
+    var end $false
+    var fn (cond, do):{
+        end == $nil && {
+            die("additional case succeeding a fallthrough case")
+        }
+        end ||= cond && {
+            _ := do
+            $true
+        }
+        "NOTE: don't eval cond if end"
+        end == $false && cond == $nil && {
+            _ := do
+            end := $nil
+        }
+        ;
+    }
+    fn
+}
+
 package main
 
 "=== showcasing if..do and unless..do ==="
@@ -52,4 +72,35 @@ package main
     var abs tern(n > 0, n, n + n * -2)
     print("abs of", n, "is", abs)
     ;
+}
+
+"=== showcasing CaseAnalysis ==="
+{
+    var case CaseAnalysis()
+
+    -- add trace for what gets evaluated
+    var == (a, b):{
+        print("testing " + a + " == " + b)
+        a == b
+    }
+
+    case(1 == 2, {
+        print("A")
+    })
+
+    -- case(2 == 2, {
+        print("B")
+    })
+
+    case(3 == 3, {
+        print("C")
+    })
+
+    case(_, {
+        print("D")
+    })
+
+    -- case(_, {
+        print("can't happen")
+    })
 }
