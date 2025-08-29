@@ -13,6 +13,15 @@ var not (bool):{
     tern(bool, $false, $true)
 }
 
+```
+    tern should ALWAYS be considered before
+    deciding to use a CaseAnalysis,
+    as tern is easier to read and suits most situtations.
+
+    On the other hand, CaseAnalysis is very powerful but
+    require you to define an additional variable
+    (two of them if you need to store a result)
+```
 var CaseAnalysis ():{
     var end $false
     var fn (cond, do):{
