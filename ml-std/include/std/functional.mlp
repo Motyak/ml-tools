@@ -85,7 +85,7 @@ var map {
         not(lhs > rhs || lhs == rhs)
     }
     var lambda? (x):{
-        Str(x) == "<lambda>" && len(x) < 8
+        $type(x) == 'Lambda
     }
 
     var map (fn, iterable):{
@@ -100,10 +100,7 @@ var map {
 var filter {
     "accepts as input Str or List"
     var list? (x):{
-        var str? {
-            len(Str(x + '!)) == len(Str(x)) + 1
-        }
-        not(str?)
+        $type(x) == 'List
     }
 
     var .. RangeIterator<=
@@ -162,7 +159,7 @@ var filter {
         not(lhs > rhs || lhs == rhs)
     }
     var lambda? (x):{
-        Str(x) == "<lambda>" && len(x) < 8
+        $type(x) == 'Lambda
     }
 
     var filter (fn, iterable):{

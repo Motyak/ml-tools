@@ -40,7 +40,7 @@ var Iterator (subscriptable):{
         var < (lhs, rhs):{
             not(lhs > rhs || lhs == rhs)
         }
-        Str(x) == "<lambda>" && len(x) < 8
+        $type(x) == 'Lambda
     }
     
     var next {
@@ -98,7 +98,7 @@ var RangeIterator<= (from, to):{
     {
         "accepts as input Int, Char or Str"
         var str? (x):{
-            len(Str(x + 0)) > len(Str(x))
+            $type(x) == 'Str
         }
         var charInputs? {
             var charInputs? $true
@@ -146,7 +146,7 @@ var next (iterator):{
             (a > b || a == b) == $false
         }
         var lambda? (x):{
-            Str(x) == "<lambda>" && len(x) < 8
+            $type(x) == 'Lambda
         }
         tern(lambda?(iterable), Iterator::foreach(iterable, fn), {
             Container::foreach(&iterable, fn)

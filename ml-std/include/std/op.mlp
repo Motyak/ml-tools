@@ -116,11 +116,8 @@ var in (elem, iterable):{
         found
     }
 
-    var < (lhs, rhs):{
-        not(lhs > rhs || lhs == rhs)
-    }
     var lambda? (x):{
-        Str(x) == "<lambda>" && len(x) < 8
+        $type(x) == 'Lambda
     }
 
     !tern(lambda?(iterable), in(elem, iterable), {

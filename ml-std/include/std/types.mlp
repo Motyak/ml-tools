@@ -1,0 +1,12 @@
+
+var type! (val, type):{
+    $type(val) == type || {
+        var msg "not a " + type
+        msg += ": `" + val + "`"
+        die(msg)
+    }
+}
+
+package main
+
+print("types.mlp")
