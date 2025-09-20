@@ -27,10 +27,10 @@ var curry (fn, args...):{
 }
 
 var curry_rhs (fn, rhs):{
-    var res (lhs):{
+    var curried (lhs):{
         fn(lhs, rhs)
     }
-    res
+    curried
 }
 
 var foreach' {
@@ -81,9 +81,7 @@ var map {
         dispatcher
     }
 
-    var < (lhs, rhs):{
-        not(lhs > rhs || lhs == rhs)
-    }
+
     var lambda? (x):{
         $type(x) == 'Lambda
     }
@@ -155,9 +153,6 @@ var filter {
         dispatcher
     }
 
-    var < (lhs, rhs):{
-        not(lhs > rhs || lhs == rhs)
-    }
     var lambda? (x):{
         $type(x) == 'Lambda
     }

@@ -119,7 +119,6 @@ var in (elem, iterable):{
     var lambda? (x):{
         $type(x) == 'Lambda
     }
-
     !tern(lambda?(iterable), in(elem, iterable), {
         Iterator::in(elem, iterable)
     })

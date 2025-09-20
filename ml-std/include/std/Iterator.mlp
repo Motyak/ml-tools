@@ -37,9 +37,6 @@ var Iterator (subscriptable):{
     }
 
     var lambda? (x):{
-        var < (lhs, rhs):{
-            not(lhs > rhs || lhs == rhs)
-        }
         $type(x) == 'Lambda
     }
     
@@ -64,7 +61,7 @@ var ArgIterator (args...):{
 }
 
 var SeqIterator (init, stop?, update):{
-    let curr init
+    var curr init
 
     var peek ():{
         Some(curr)
@@ -142,9 +139,6 @@ var next (iterator):{
             })
         }
 
-        var < (a, b):{
-            (a > b || a == b) == $false
-        }
         var lambda? (x):{
             $type(x) == 'Lambda
         }
