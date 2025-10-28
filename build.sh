@@ -17,7 +17,7 @@ git submodule foreach git checkout master
 git submodule foreach git pull origin master --ff-only
 
 (
-    make -C monlang -q main; exit_code=$?
+    make -C monlang -q main --no-print-directory; exit_code=$?
     [ $exit_code -eq 1 ] && make -C monlang dist # should (re)build
     [ $exit_code -eq 2 ] && exit 2 # error in makefile
     set -o errexit
