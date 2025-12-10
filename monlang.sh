@@ -39,7 +39,7 @@ if [[ "$1" =~ ^(--)?$ ]]; then
 elif [ "$1" == "-" ]; then
     tmpdir="$(mktemp -d)"
     tmpfile="$(mktemp -p "$tmpdir")"
-    replace_shebang | tee "$tmpfile" >/dev/null
+    replace_shebang > "$tmpfile"
     monlang-parser/bin/main.elf\ -o - < "$tmpfile"
     monlang-interpreter/bin/main.elf - "${@:2}" < "$tmpfile"
 
