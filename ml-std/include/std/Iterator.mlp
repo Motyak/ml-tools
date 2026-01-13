@@ -73,10 +73,8 @@ var SeqIterator (init, stop?, update):{
             tern(stop?(curr), END, Some(curr))
         }
         next := ():{
-            tern(stop?(curr), END, {
-                update(&curr)
-                Some(curr)
-            })
+            update(&curr)
+            tern(stop?(curr), END, Some(curr))
         }
         Some(curr)
     }
@@ -111,7 +109,7 @@ var RangeIterator<= (from, to):{
     }
     var RangeIterator<= {
         var i from
-        var stop? (i):{i >= to}
+        var stop? (i):{i > to}
         var update (i):{i += 1}
         SeqIterator(i, stop?, update)
     }
