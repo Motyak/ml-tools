@@ -4,7 +4,7 @@ set -o errexit
 
 ./build.sh
 
-cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+cd "$(dirname "$0")"
 
 set -o verbose
 ln -fs "$(realpath monlang.sh)" ~/.local/bin/monlang

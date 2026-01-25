@@ -12,7 +12,7 @@ function emptydir (
 
 alias make='make -j16'
 
-cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+cd "$(dirname "$0")"
 
 git submodule sync
 emptydir monlang && git submodule update --init
