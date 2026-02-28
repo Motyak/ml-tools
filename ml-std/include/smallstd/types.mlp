@@ -1,0 +1,7 @@
+```
+    this definition is equivalent to:
+    len([a:_, b:_]) == 1
+```
+var <=> (a, b):{
+    $type(a) == $type(b) && a == b
+}

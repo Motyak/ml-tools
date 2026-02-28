@@ -1,0 +1,78 @@
+var Optional (some?, val):{
+    var none? ():{
+        ==($false, some?)
+    }
+
+    var some ():{
+        some? || die("calling some() on empty Optional")
+        val
+    }
+
+    var dispatcher (op):{
+        tern(op == 'none?, none?(), {
+            tern(op == 'some, some(), {
+                die("unknown Optional operation: `" + op + "`")
+            })
+        })
+    }
+    dispatcher
+}
+
+var ArgIterator {
+    var Pair (left, right):{
+        var dispatcher (op):{
+            tern(op == 'left, left, {
+                tern(op == 'right, right, {
+                    die(op) -- "unknown operation"
+                })
+            })
+        }
+        dispatcher
+    }
+
+    var END {
+        Optional($false, _)
+    }
+    var Some (x):{
+        Optional($true, x)
+    }
+    var Pair? (left, right):{
+        Optional($true, Pair(left, right))
+    }
+
+    var LazyList-1+ _
+
+    var LazyList (xs...):{
+        tern($#varargs == 0, END, {
+            LazyList-1+(xs...)
+        })
+    }
+
+    LazyList-1+ := (x, xs...):{
+        Pair?(x, LazyList(xs...))
+    }
+
+    var ArgIterator (args...):{
+        var args LazyList(args...)
+        var next (peek?):{
+            tern(args('none?), END, {
+                var res args('some)('left)
+                peek? || {
+                    args := args('some)('right)
+                }
+                Some(res)
+            })
+        }
+
+        var dispatcher (op):{
+            tern(op == 'next, next(0), {
+                tern(op == 'peek, next(1), {
+                    die("unknown iterator operation: `" + op + "`")
+                })
+            })
+        }
+        dispatcher
+    }
+
+    ArgIterator
+}

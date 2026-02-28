@@ -1,0 +1,29 @@
+var ascii (c):{
+    Int(Byte(c))
+}
+
+var lower? (c):{
+    c in 'a .. 'z
+}
+
+var upper? (c):{
+    c in 'A .. 'Z
+}
+
+var lower (OUT c):{
+    len(Str(c)) == 1 || die("more than 1 char")
+    !tern(upper?(c), c, {
+        var res Byte(c) + (Byte('a) - Byte('A))
+        c := res
+        res
+    })
+}
+
+var upper (OUT c):{
+    len(Str(c)) == 1 || die("more than 1 char")
+    !tern(lower?(c), c, {
+        var res Byte(c) - (Byte('a) - Byte('A))
+        c := res
+        res
+    })
+}

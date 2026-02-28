@@ -13,7 +13,7 @@ var curry_required (requiredArgs, fn):{
 
     var curried _
     curried := (args...):{
-        tern($#varargs - requiredArgs >= 0, fn(args...), {
+        tern($#varargs >= requiredArgs, fn(args...), {
             (args2...):{curried(args..., args2...)}
         })
     }

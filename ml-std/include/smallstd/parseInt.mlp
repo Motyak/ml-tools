@@ -1,0 +1,21 @@
+var parseInt (str):{
+    var to_digit (c):{
+        Int(c - Byte("0"))
+    }
+
+    var res 0
+    var i 0
+    var loop _
+    loop := ():{
+        var nth len(str) - i
+        nth == 0 || {
+            var curr str[#nth]
+            res += to_digit(curr) * 10 ** i
+            i += 1
+            loop()
+        }
+    }
+    loop()
+
+    res
+}

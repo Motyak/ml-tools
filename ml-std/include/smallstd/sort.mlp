@@ -1,0 +1,28 @@
+var sort {
+    var List::sort _
+    List::sort := (precedes?, list):{
+        tern(len(list) < 2, list, {
+            var mid list[#1]
+            var left list[#2..-1] |> filter((x):{precedes?(x, mid)})
+            var right list[#2..-1] |> filter((x):{not(precedes?(x, mid))})
+            List::sort(precedes?, left) + [mid] + List::sort(precedes?, right)
+        })
+    }
+
+    var Str::sort _
+    Str::sort := (precedes?, str):{
+        tern(len(str) < 2, str, {
+            var mid str[#1]
+            var left str[#2..-1] |> filter((x):{precedes?(x, mid)})
+            var right str[#2..-1] |> filter((x):{not(precedes?(x, mid))})
+            Str::sort(precedes?, left) + mid + Str::sort(precedes?, right)
+        })
+    }
+
+    var sort (precedes?, container):{
+        tern($type(container) == 'Str, Str::sort(precedes?, container), {
+            List::sort(precedes?, container)
+        })
+    }
+    curry(sort)
+}

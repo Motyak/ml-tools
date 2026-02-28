@@ -1,0 +1,15 @@
+var getlines ():{
+    var lines []
+    var line getline()
+    until(():{line == $nil}, ():{
+        lines += [line]
+        line := getline()
+    })
+    lines
+}
+
+var stdin ():{
+    slurpfile("/dev/stdin")
+}
+
+var stdout print

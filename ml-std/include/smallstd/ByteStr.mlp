@@ -1,0 +1,15 @@
+var ByteStr {
+    var ByteStr-1+ _
+
+    var ByteStr (xs...):{
+        tern($#varargs == 0, "", {
+            ByteStr-1+(xs...)
+        })
+    }
+
+    ByteStr-1+ := (x, xs...):{
+        Byte(x) + ByteStr(xs...)
+    }
+
+    ByteStr
+}
