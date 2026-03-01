@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use open ":encoding(UTF-8)", ":std";
 use feature "state";
 use constant true => 1;
 use constant false => 0;
 use constant _ => undef;
-binmode(STDOUT, ":utf8");
 
 my $CMD = "$0" . " " x (@ARGV > 0) . join(" ", @ARGV);
 
@@ -78,7 +78,7 @@ sub INCLUDE_ERR {
     my ($file, $line, $linenb) = @_;
 
     my $include = substr $line, 9, -1;
-    my $err_msg = "${file}:$.:10: ERR: no include path in which to search for `${include}`\n";
+    my $err_msg = "${file}:${linenb}:10: ERR: no include path in which to search for `${include}`\n";
     $err_msg .= rjust("$linenb", 5) . " | " . $line . "\n";
     $err_msg .= " " x 5 . " | " . " " x 9 . "^";
     ERR($err_msg);
@@ -96,13 +96,16 @@ sub preprocess {
         %files = ($file => _);
     }
 
-    open my $fh, "<:encoding(UTF-8)", $file or OPEN_FILE_ERR($file, $!);
+    open my $fh, "<", $file or OPEN_FILE_ERR($file, $!);
     while (my $line = <$fh>) {
         chomp $line;
 
         if ($line =~ /^include <(\S+)>$/ && !($in_package_main)) {
             my $included_file = search_file(\@INCLUDE_PATH, $1) or INCLUDE_ERR($file, $line, $.);
-            next if exists $files{$included_file};
+            if (exists $files{$included_file}) {
+                $res .= "\"$&\" -- mlp\n"; # required for proper "retro"ing
+                next;
+            }
             $files{$included_file} = _;
 
             {
@@ -128,13 +131,13 @@ sub preprocess {
 
         elsif ($line =~ /^package main$/) {
             unless ($rec_call) {
-                $res .= "\"$&\"\n";
+                $res .= "\"$&\" -- mlp\n";
             }
             $in_package_main = true;
         }
 
         elsif ($line =~ /^package \S+$/) {
-            $res .= "\"$&\"\n";
+            $res .= "\"$&\" -- mlp\n";
         }
 
         elsif ($in_package_main) {
