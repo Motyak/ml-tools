@@ -8,7 +8,7 @@ var ByteStr {
     }
 
     ByteStr-1+ := (x, xs...):{
-        Byte(x) + ByteStr(xs...)
+        Str(Byte(x)) + ByteStr(xs...)
     }
 
     ByteStr

@@ -322,7 +322,7 @@ var all {
     var all (pred, container):{
         tern(len(pred) == 1, UnaryPred::all(pred, container), {
             tern(len(pred) == 2, BinPred::all(pred, container), {
-                die("all() pred param requires either 1 or 2 args")
+                die("all() pred should require either 1 or 2 args")
             })
         })
     }
