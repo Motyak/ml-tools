@@ -353,7 +353,7 @@ var >> {
 -- include <smallstd/asMap.mlp>
 -- include <smallstd/ByteStr.mlp>
 -- include <smallstd/delay.mlp>
--- include <smallstd/io.mlp> -- "getlines(), stdin(), stdout"
+-- include <smallstd/io.mlp> -- "getlines(), stdin(), stdout()"
 -- include <smallstd/parseInt.mlp>
 -- include <smallstd/sort.mlp>
 -- include <smallstd/types.mlp> -- "<=>()"

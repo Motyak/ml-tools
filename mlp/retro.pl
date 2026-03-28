@@ -95,8 +95,8 @@ while (my $line = <$fh>) {
         $curr_file = $curr_file_stack[-1]
     }
 
-    elsif ($line =~ /^"(include <\S+>)" -- mlp$/) {
-        $content{$curr_file} .= "$1\n"
+    elsif ($line =~ /^"(include <\S+>)( -- \\"[^"]*\\")?" -- mlp$/) {
+        $content{$curr_file} .= "$1" . (($2 // "") =~ s/\\"/"/gr) . "\n"
     }
 
     else {

@@ -100,10 +100,10 @@ sub preprocess {
     while (my $line = <$fh>) {
         chomp $line;
 
-        if ($line =~ /^include <(\S+)>$/ && !($in_package_main)) {
-            my $included_file = search_file(\@INCLUDE_PATH, $1) or INCLUDE_ERR($file, $line, $.);
+        if ($line =~ /^(include <(\S+)>)( -- "[^"]*")?$/ && !($in_package_main)) {
+            my $included_file = search_file(\@INCLUDE_PATH, $2) or INCLUDE_ERR($file, $line, $.);
             if (exists $files{$included_file}) {
-                $res .= "\"$&\" -- mlp\n"; # required for proper "retro"ing
+                $res .= "\"$1" . (($3 // "") =~ s/"/\\"/gr) . "\" -- mlp\n"; # required for proper "retro"ing
                 next;
             }
             $files{$included_file} = _;
