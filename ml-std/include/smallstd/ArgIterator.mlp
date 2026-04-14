@@ -1,21 +1,27 @@
-var Optional (some?, val):{
-    var none? ():{
-        ==($false, some?)
-    }
+type Iterator Lambda
 
-    var some ():{
-        some? || die("calling some() on empty Optional")
-        val
-    }
+type Optional Lambda
+{
+    var tag Optional
+    Optional := (some?, val):{
+        var none? ():{
+            ==($false, some?)
+        }
 
-    var dispatcher (op):{
-        tern(op == 'none?, none?(), {
-            tern(op == 'some, some(), {
-                die("unknown Optional operation: `" + op + "`")
+        var some ():{
+            some? || die("calling some() on empty Optional")
+            val
+        }
+
+        var dispatcher (op):{
+            tern(op == 'none?, none?(), {
+                tern(op == 'some, some(), {
+                    die("unknown Optional operation: `" + op + "`")
+                })
             })
-        })
+        }
+        tag(dispatcher)
     }
-    dispatcher
 }
 
 var ArgIterator {
@@ -74,5 +80,5 @@ var ArgIterator {
         dispatcher
     }
 
-    ArgIterator
+    Iterator(ArgIterator)
 }

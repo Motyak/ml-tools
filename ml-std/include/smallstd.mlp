@@ -1,7 +1,3 @@
-var not (bool):{
-    ==($false, bool)
-}
-
 var <> (a, b):{
     a == b == $false
 }
@@ -78,6 +74,23 @@ var do_while (do, cond):{
     ;
 }
 
+var not {
+    var logical_not (bool):{
+        ==($false, bool)
+    }
+    var op_not (a, b):{
+        a is b == $false
+    }
+    var not (varargs...):{
+        tern($#varargs == 1, logical_not(varargs...), {
+            tern($#varargs == 2, op_not(varargs...), {
+                die("not() takes either 1 or 2 args")
+            })
+        })
+    }
+    not
+}
+
 var - {
     var sub-1 (n):{
         n + n * -2
@@ -95,6 +108,7 @@ var - {
     -
 }
 
+type Range Lambda
 var .. (from, to):{
     $type(from) == 'Str && {from := Byte(from)}
     $type(to) == 'Str && {to := Byte(to)}
@@ -105,7 +119,7 @@ var .. (from, to):{
             })
         })
     }
-    dispatcher
+    Range(dispatcher)
 }
 
 var foreach {
@@ -128,7 +142,7 @@ var foreach {
     }
 
     var foreach (iterable, fn):{
-        tern($type(iterable) == 'Lambda, Range::foreach(iterable, fn), {
+        tern(iterable is 'Range, Range::foreach(iterable, fn), {
             Container::foreach(&iterable, fn)
         })
     }
@@ -152,7 +166,7 @@ var in {
     }
 
     var in (elem, iterable):{
-        tern($type(iterable) == 'Lambda, Range::in(elem, iterable), {
+        tern(iterable is 'Range, Range::in(elem, iterable), {
             Container::in(elem, iterable)
         })
     }
@@ -161,7 +175,7 @@ var in {
 }
 
 var !in (elem, container):{
-    in(elem, container) == $false
+    elem in container == $false
 }
 
 "autocurries until the nb of required args has been reached"
