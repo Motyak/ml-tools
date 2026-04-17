@@ -26,7 +26,7 @@ var !tern (cond, if_false, if_true):{
 }
 
 var CaseAnalysis (pred):{
-    $type(pred) == 'Lambda || die("CaseAnalysis pred isn't a Lambda")
+    pred is 'Lambda || die("CaseAnalysis pred isn't a Lambda")
     var end $false
     var fn (val, do):{
         end <> $nil || die("additional case succeeding a fallthrough case")
@@ -110,8 +110,8 @@ var - {
 
 type Range Lambda
 var .. (from, to):{
-    $type(from) == 'Str && {from := Byte(from)}
-    $type(to) == 'Str && {to := Byte(to)}
+    from is 'Str && {from := Byte(from)}
+    to is 'Str && {to := Byte(to)}
     var dispatcher (msg):{
         tern(msg == 'from, from, {
             tern(msg == 'to, to, {
@@ -211,7 +211,7 @@ var foreach_do {
 
 var map {
     var map (fn, iterable):{
-        var str? $type(iterable) == 'Str
+        var str? iterable is 'Str
         var res tern(str?, "", [])
         foreach(iterable, (x):{
             res += tern(str?, fn(x), [fn(x)])
@@ -223,7 +223,7 @@ var map {
 
 var filter {
     var filter (pred, iterable):{
-        var str? $type(iterable) == 'Str
+        var str? iterable is 'Str
         var res tern(str?, "", [])
         foreach(iterable, (x):{
             pred(x) && {
@@ -351,9 +351,9 @@ var >> {
     var rightshift >> -- builtin
 
     var >> (arg1, arg2, args...):{
-        tern($type(arg1) == 'Lambda, compose(arg1, arg2, args...), {
+        tern(arg1 is 'Lambda, compose(arg1, arg2, args...), {
             "special case, for conveniency"
-            tern($type(arg1) == '$nil && $#varargs == 0, arg2, {
+            tern(arg1 == $nil && arg is 'Lambda && $#varargs == 0, arg2, {
                 rightshift(arg1, arg2, args...)
             })
         })

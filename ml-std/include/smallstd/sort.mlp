@@ -20,7 +20,7 @@ var sort {
     }
 
     var sort (precedes?, container):{
-        tern($type(container) == 'Str, Str::sort(precedes?, container), {
+        tern(container is 'Str, Str::sort(precedes?, container), {
             List::sort(precedes?, container)
         })
     }
