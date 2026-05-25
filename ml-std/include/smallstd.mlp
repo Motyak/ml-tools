@@ -45,12 +45,10 @@ var CaseAnalysis (pred):{
 }
 
 var until (cond, do):{
-    var 1st_it? $true
     var loop _
     loop := ():{
         cond() || {
-            do(1st_it?)
-            1st_it? := $false
+            do()
             _ := loop()
         }
     }
@@ -59,14 +57,12 @@ var until (cond, do):{
 }
 
 var do_while (do, cond):{
-    var 1st_it? $true
-    do(1st_it?)
-    1st_it? := $false
+    do()
 
     var loop _
     loop := ():{
         cond() && {
-            do(1st_it?)
+            do()
             _ := loop()
         }
     }
@@ -123,19 +119,28 @@ var .. (from, to):{
 }
 
 var foreach {
-    var Container::foreach (OUT container, fn):{
+    var List/Str::foreach (OUT container, fn):{
         var nth 1
-        until(():{nth > len(container)}, (_):{
+        until(():{nth > len(container)}, ():{
             fn(&container[#nth])
             nth += 1
         })
         container
     }
 
+    var Map::foreach (OUT map, fn):{
+        var pairs [] + map
+        List/Str::foreach(pairs, (pair):{
+            var key pair[#1]
+            fn(key, &map[key])
+        })
+        map
+    }
+
     var Range::foreach (range, fn):{
         var i range('from)
         var to range('to)
-        until(():{i > to}, (_):{
+        until(():{i > to}, ():{
             fn(i)
             i += 1
         })
@@ -143,10 +148,11 @@ var foreach {
 
     var foreach (iterable, fn):{
         tern(iterable is 'Range, Range::foreach(iterable, fn), {
-            Container::foreach(&iterable, fn)
+            tern(iterable is 'Map, Map::foreach(&iterable, fn), {
+                List/Str::foreach(&iterable, fn)
+            })
         })
     }
-
     (foreach)
 }
 
@@ -154,7 +160,7 @@ var in {
     var Container::in (elem, container):{
         var nth 1
         var found $false
-        until(():{found || nth > len(container)}, (_):{
+        until(():{found || nth > len(container)}, ():{
             found := container[#nth] == elem
             nth += 1
         })
@@ -245,6 +251,25 @@ var reduce {
     curry(reduce)
 }
 
+var apply {
+    var apply (fn, args):{
+        var acc curry_required(len(args), fn)
+        var nth 1
+        var loop _
+        loop := ():{
+            nth > len(args) || {
+                var x args[#nth]
+                acc := acc(x)
+                nth += 1
+                _ := loop()
+            }
+        }
+        loop()
+        acc
+    }
+    curry(apply)
+}
+
 var compose (fn1, fn2, fns...):{
     var compose (fn1, fn2):{
         fn1
@@ -289,7 +314,7 @@ var any {
     var any (pred, container):{
         var any_true $false
         var nth 1
-        until(():{any_true || nth > len(container)}, (_):{
+        until(():{any_true || nth > len(container)}, ():{
             pred(container[#nth]) && {any_true := $true}
             nth += 1
         })
@@ -309,7 +334,7 @@ var all {
     var UnaryPred::all (pred, container):{
         var any_false $false
         var nth 1
-        until(():{any_false || nth > len(container)}, (_):{
+        until(():{any_false || nth > len(container)}, ():{
             pred(container[#nth]) || {any_false := $true}
             nth += 1
         })
@@ -324,7 +349,7 @@ var all {
     var BinPred::all (pred, container):{
         var any_false $false
         var nth 2
-        until(():{any_false || nth > len(container)}, (_):{
+        until(():{any_false || nth > len(container)}, ():{
             var lhs at(container, nth - 1)
             var rhs at(container, nth)
             pred(lhs, rhs) || {any_false := $true}

@@ -1,0 +1,505 @@
+
+```
+    This file makes it easy to lookup some interpreter builtin signature.
+    (search for `var Lambda` for example)
+
+    Builtins also include operators and constructors of primitive types
+    (also called prim ctors)
+
+    =======================================================
+
+    var print (args...):{
+        - prints all arguments (space-separated if more than one)
+        - adds a trailing newline
+        - cannot fail (all value_t are printable)
+        - returns $nil
+    }
+
+    var putstr (x):{
+        - same as print() but with no trailing newline
+        - flushes STDOUT
+    }
+
+    var getline ():{
+        - reads a line from STDIN and return it as Str
+          with trailing newline stripped (if any)
+
+        - return $nil if STDIN closed without any further data,
+          otherwise return the remaining data first, and return
+          $nil on subsequent calls
+
+        - note that this function isn't suited for properly
+          "slurping" STDIN because we cannot possibly detect whether
+          the ultimate line of input had a newline or if it simply EOF.
+          Therefore we would erronously add a newline character to this
+          ultimate line (as well as for others) but in the case
+          the line didn't contain one it becomes wrong to do so
+            -> use slurpfile("/dev/stdin") instead
+    }
+
+    var scan (n_bytes):{
+        - reads UP TO n bytes from STDIN
+          and return it as a Str
+
+        - if you expect exactly n bytes, you should
+          do the check on the len() of returned str
+
+        - common use case: read n bytes until 0 byte is read,
+          indicating the end of data
+    }
+
+    var slurpfile (file):{
+        - reads the entire file as is and return it as a Str
+        - slurpfile("/dev/stdin") to slurp STDIN
+    }
+
+    var die (<optional_msg>):{
+        - early exit the program with a backtrace and an optional msg
+
+        - exit code 2, to distinguish it from legitimate exit code 1
+          in predicate-type programs (similar to `diff` CLI utility)
+
+        - any type is allowed to be passed as the msg (since all
+          types are printable), but if you are to pass a msg
+          you should construct and pass a Str here
+
+        - the function doesn't return
+    }
+
+    var exit ():{
+        - early exit the program with the provided exit code (between 0-255)
+
+        - recommend using exit(123) to short-circuit the rest of your code
+          (for debugging, ..)
+
+        - use exit(0) and exit(1) for predicate-type programs
+          (similar to `diff` CLI utility)
+
+        - the function doesn't return
+    }
+
+    var sleep (n_seconds):{
+        - pauses the program execution for n_seconds,
+          support up to millisecond precision
+
+        - you can pass any numerical value:
+          sleep(1) -- 1s
+          sleep(0.500) -- 500ms
+          sleep(1/3)
+    }
+
+    var len (x):{
+        - returns the length of a container (Str, List or Map)
+          -> the length of a Str is its number of bytes,
+             which may not be the same as counting the characters
+             if it includes special UTF-8 characters
+            -> it makes Str suited for both ASCII text manipulation
+               and raw bytes manipulation, which are the most
+               common usecases
+          -> note that knowing the len() of a Map isn't very useful,
+             but it makes more sense to leave it rather than
+             justifying its absence
+
+        - returns the number of required arguments of a Lambda
+          -> for example: print(args...) has zero required argument
+             since variadic parameter doesn't count
+            (it's valid to pass no arg to print())
+    }
+
+    var $type (x):{
+        - returns the nominal type of x
+
+        - this is useful for debugging, along with print()
+
+        - it should not be used for type checking,
+          you should use is() operator for that purpose,
+          unless you want to restrict to THAT particular type
+          and deliberately forbid alias types ?
+    }
+
+    ===================================
+    OPERATORS
+    ===================================
+
+    var && (a, b, varargs...):{
+        - performs logical AND
+
+        - args evaluated from left to right
+
+        - short-circuits when no further operation
+          can possibly change the result
+         (ex: b doesn't need to be evaluated if a is $false)
+
+        - this is commonly used for conditional computation :
+          cond && {
+              print("cond was true")
+          }
+          -> note: &&() has lower precedence than ||()
+             so we sometimes need parentheses
+             example:
+             (A || B) && {
+                 print("a or b was true")
+             }
+          -> note2: rhs must either be a Bool or $nil
+            (this is not an issue in most cases, and there
+             are ways to address this)
+             example:
+             cond && {_ := doit()} -- here we may need to discard a return value
+
+        - see also: apply(&&, list) from std
+    }
+
+    var || (a, b, varargs...):{
+        - performs logical OR
+
+        - args evaluated from left to right
+
+        - short-circuits when no further operation
+          can possibly change the result
+
+        - this is commonly used for conditional computation :
+          requirement || die("requirement was not met")
+          -> note: rhs must either be a Bool or $nil
+            (this is not an issue in most cases, and there
+             are ways to address this)
+             example:
+             cond || {_ := doit()} -- here we may need to discard a return value
+
+        - see also: apply(||, list) from std
+    }
+
+    var == (a, b, varargs...):{
+        - compare for equality
+          -> two values can be equal even if they don't
+             have the same type
+          -> two lists are equal if they are of the same length
+             and their respective elements are then compared recursively
+            -> a similar approach is taken for Map comparison
+          -> when a lambda is evaluated, we give it an identifier,
+             so two lambdas are the same if they have the same identifier.
+             Two lambdas could be different even if they were
+             evaluated from the same syntactic expression.
+             When we copy a lambda from one variable to another,
+             the two lambdas are equal even if the functions don't have
+             the same name.
+
+        - args are evaluated from left to right
+
+        - short-circuits when no further operation
+          can possibly change the result
+
+        - see also: all(==, list) from std for chained comparison
+    }
+
+    var > (a, b, varargs...):{
+        - tests if a > b && b > c && ...
+
+        - args are evaluated from left to right
+
+        - short-circuits when no further operation
+          can possibly change the result
+
+        - when first arg is an enum val, then we check for the
+          ordering within that same enum
+          -> e.g.:
+             {
+                 enum Color {
+                     RED = "red"
+                     BLUE = "blue"
+                 }
+                 Color::RED > Color::Blue -- $false, despite ("red" > "blue")
+                                           , because RED precedes BLUE in the enum
+
+                 Str(Color::RED) > Color::BLUE -- $true, string comparison here
+             }
+
+        - see also: - all(>, list) from std for chained comparison
+                    - sort(>, list) from std (smallstd/sort.mlp)
+    }
+
+    var + (a, b, varargs...):{
+        - performs either numerical addition, string concatenation
+          or list concatenation, depending on first argument type
+
+        - args are evaluated from left to right
+
+        - see also: - reduce(0.0, +, list) from std
+                    - join("", list) from std
+    }
+
+    var * (a, b, varargs...):{
+        - performs numerical multiplication unless
+          on these following situations:
+          *(Str, ...)  => Str construction  -- *("fds", 2, 3)
+          *(Int, Str)  => Str construction  -- 6 * "fds"
+          *(List, ...) => List construction -- *([1, 2], 2, 3)
+          *(Int, List) => List construction -- 6 * [1, 2]
+
+        - args are evaluated from left to right
+
+        - see also: reduce(1.0, *, list) from std
+    }
+
+    var / (a, b, varargs...):{
+        - performs a Float division
+          (even if args are of type Int)
+          -> see //() for int division (remainder)
+
+        - returns a Float
+
+        - args are evaluated from left to right
+
+        - see also: apply(/, list) from std
+    }
+
+    var // (a, b, varargs...):{
+        - performs an int division (also called "remainder")
+          -> see /() for Float division
+
+        - returns an Int/Byte depending of first arg type
+
+        - args are evaluated from left to right
+
+        - see also: apply(//, list) from std
+    }
+
+    var % (a, b, varargs...):{
+        - performs modulo
+        - returns an Int/Byte depending on first arg type
+        - args are evaluated from left to right
+        - see also: apply(%, list) from std
+    }
+
+    var ** (a, b, varargs...):{
+        - performs numerical exponentiation
+        - args are evaluated from left to right
+        - see also: apply(**, list) from std
+    }
+
+    var << (a, b, varargs...):{
+        - performs bitwise left shift
+        - args are evaluated from left to right
+        - see also: apply(<<, list) from std
+    }
+
+    var >> (a, b, varargs...):{
+        - performs bitwise left shift
+
+        - args are evaluated from left to right
+
+        - this operator is overridden in std
+          to support function composition as well
+          (depending on argument types)
+
+        - see also: apply(>>, list) from std
+    }
+
+    var & (a, b, varargs...):{
+        - performs bitwise AND
+
+        - args are evaluated from left to right
+
+        - note: we should confuse this operator with
+          &&(), which can short-circuit its arguments
+          as opposed to &() which never does
+
+        - see also: reduce(Byte(0xFF), &, list) from std
+    }
+
+    var | (a, b, varargs...):{
+        - performs bitwise OR
+
+        - args are evaluated from left to right
+
+        - note: we should confuse this operator with
+          ||(), which can short-circuit its arguments
+          as opposed to |() which never does
+
+        - see also: reduce(Byte(0), |, list) from std
+    }
+
+    var ^ (a, b, varargs...):{
+        - performs bitwise XOR
+        - args are evaluated from left to right
+        - see also: reduce(Byte(0), ^, list) from std
+    }
+
+    var ~ (x):{
+        - performs bitwise NOT
+
+        - args are evaluated from left to right
+
+        - note: this is the only operator that isn't
+          binary (it takes a single arg), therefore
+          we can only use it in the function call form
+          -> e.g.:
+             flags &= ~(FLAG)
+             var same_bits ~(a ^ b)
+             var missing_cards FULL_SET & ~(cards)
+    }
+
+    var is (val, type):{
+        - checks if val is of type "type"
+          -> e.g.: x is 'Int
+
+        - type argument must be a Str
+
+        - see also: all((x):{x is 'Int}, list) from std
+    }
+
+    ===================================
+    PRIM CTORS
+    ===================================
+
+    var Bool (x):{
+        - constructs a Bool from a Bool/Byte/Int
+        - values are $true and $false
+    }
+
+    var Byte (x):{
+        - constructs a Byte from either a Byte/Int
+          or from a 1-char Str
+            -> e.g.:
+               Byte("0") -- Byte for character `0` (ascii)
+               Byte("\n") -- Byte for newline character (ascii)
+
+        - values are in range 0-255
+
+        - subscripting a Str returns a Byte
+
+        - you can increment a Byte as if it was an Int,
+          the result gives the succeeding Byte (or character
+          if we are in the ascii range)
+          -> e.g.: Byte(255) + 1 -- NUL ascii character (0)
+          -> in fact all numerical operations can be performed
+             on values of type Byte, and a Byte will be
+             returned in that case
+    }
+
+    var Int (x):{
+        - constructs an Int from a Bool/Byte/Int/Float
+
+        - values range from -2^63 to 2^63 - 1
+          -> min val: -9223372036854775808
+          -> max val:  9223372036854775807
+    }
+
+    var Float (x):{
+        - constructs a Float from a Byte/Int/Float
+        - 64bit (double) precision floating-point number
+    }
+
+    var Str (x):{
+        - serialize any value to a Str (instead of printing it)
+
+        - strings are bytes, subscripting a Str gives a Byte,
+          when printing a Str the bytes get interpreted as UTF-8 text
+          -> e.g.:
+          {
+              var str ""
+              str += Byte(0xE2)
+              str += Byte(0x82)
+              str += Byte(0xAC)
+              print(str) -- €
+              print(len(str)) -- 3
+          }
+    }
+
+    var List (elems...):{
+        - constructs a List from the elements passed
+          as arguments
+
+        - args are evaluated from left to right
+
+        - List() creates an empty List
+
+        - unless overridden, List(1, 2, 3) is equivalent
+          to [1, 2, 3], but we can only pass variadic arguments
+          within a function call, not a List literal
+          -> e.g.:
+             var ListTwice (elems...):{
+                 List(elems..., elems...) -- OK
+                 -- [elems..., elems...] -- ERR
+             }
+
+        - if we want to construct a List from a container value
+          (such as a Str, Map or another List), then we can
+          use concatenation to an empty list
+          -> e.g.:
+             {
+                 var asList (x):{
+                    [] + x
+                 }
+
+                 var list1 asList(['a:1, 'b:2])
+                 print(list1) -- [["a", 1], ["b", 2]]
+                 print(len(list1)) -- 2
+
+                 var list2 List(['a:1, 'b:2]) -- NOT what you intended
+                 print(list2) -- [["a":1, "b":2]]
+                 print(len(list2)) -- 1
+             }
+    }
+
+    var Map (pairs...):{
+        - constructs a Map from the pairs passed
+          as arguments, where each pair must be
+          a List of size 2
+
+        - args are evaluated from left to right
+
+        - Map() creates an empty Map
+          -> note: empty map literal is [:],
+             to dinstinguish it from empty
+             List literal []
+
+        - if we want to construct a Map from a List value,
+          then we can use Map merge operator | (same as bitwise OR)
+          with an empty map on the left-hand side
+          -> e.g.:
+             {
+                 var asMap (list):{
+                    [:] | list
+                 }
+
+                 var map1 asMap([["a", 1], ["b", 2]])
+                 print(map1) -- ["a":1, "b":2]
+                 print(len(map1)) -- 2
+
+                 var map2 Map([["a", 1], ["b", 2]]) -- NOT what you intended
+                 print(map2) -- [["a", 1]:["b", 2]]
+                 print(len(map2)) -- 1
+             }
+    }
+
+    var Lambda (x):{
+        - constructs a Lambda from a Lambda
+
+        - common use: when defining an interface for particular objects
+          (such as iterators or ranges), this is the underlying
+          ctor used when defining a type alias. And then the
+          tagging ctor is used to tag a Lambda with the marker
+          type indicating that it implements the say interface
+            -> e.g.:
+               {
+                   type Range Lambda -- creates Range which subtype is Lambda
+                                        so Range(x) calls Lambda(x)
+                   var create_range (from, to):{
+                       var obj (msg):{
+                           tern(msg == 'from, from, {
+                               tern(msg == 'to, to, {
+                                   die("invalid msg: `" + msg + "`")
+                               })
+                           })
+                       }
+                       Range(obj) -- tag the Lambda as a Range object
+                   }
+                   var range create_range(1, 10)
+                   print(range) -- Range(<lambda>)
+                   print(range is 'Range) -- $true
+                   print(range is 'Lambda) -- $true
+                   print($type(range)) -- Range
+               }
+    }
+
+```
