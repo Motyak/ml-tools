@@ -1,0 +1,93 @@
+"=== mlp: BEGIN ../std/cond.mlp ==============================================="
+
+var tern (cond, if_true, if_false):{
+    var res _
+    cond && {res := if_true}
+    cond || {res := if_false}
+    res
+}
+
+var !tern (cond, if_false, if_true):{
+    tern(cond, if_true, if_false)
+}
+
+var not (bool):{
+    tern(bool, $false, $true)
+}
+
+```
+    tern should ALWAYS be considered before
+    deciding to use a CaseAnalysis,
+    as tern is easier to read and suits most situtations.
+
+    On the other hand, CaseAnalysis is very powerful but
+    require you to define an additional variable
+    (two of them if you need to store a result)
+```
+var CaseAnalysis ():{
+    var end $false
+    var fn (cond, do):{
+        end == $nil && {
+            die("additional case succeeding a fallthrough case")
+        }
+        end ||= cond && {
+            _ := do
+            $true
+        }
+        "NOTE: don't eval cond if end"
+        end == $false && cond == $nil && {
+            _ := do
+            end := $nil
+        }
+        ;
+    }
+    fn
+}
+
+"=== mlp: END ../std/cond.mlp (finally back to Optional.mlp) =================="
+
+var Optional (some?, val):{
+    var none? ():{
+        not(some?)
+    }
+
+    var some ():{
+        some? || {
+            die("calling some() on empty Optional")
+        }
+        val
+    }
+
+    var dispatcher (op):{
+        tern(op == 'none?, none?, {
+            tern(op == 'some, some, {
+                die("unknown Optional operation: `" + op + "`")
+            })
+        })
+    }
+    dispatcher
+}
+
+var none? (opt):{
+    opt('none?)()
+}
+
+var some (opt):{
+    opt('some)()
+}
+
+"package main"
+
+{
+    var opt Optional($true, 'someval)
+    -- var opt Optional($false, _)
+    none?(opt) || {
+        print("opt contains", some(opt))
+    }
+    none?(opt) && {
+        print("opt is empty")
+    }
+    "the following would die() if opt were empty"
+    some(opt)
+    ;
+}

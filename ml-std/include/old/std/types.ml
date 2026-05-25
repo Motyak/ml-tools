@@ -1,0 +1,41 @@
+
+var type! (val, type):{
+    $type(val) == type || {
+        var msg "not a " + type
+        msg += ": `" + val + "`"
+        die(msg)
+    }
+    ;
+}
+
+```
+    this definition is equivalent to:
+    len([a:_, b:_]) == 1
+```
+var <=> (a, b):{
+    $type(a) == $type(b) && a == b
+}
+
+"package main"
+
+"=== testing type!() ==="
+
+type!('fds, 'Str)
+
+"ERR not a Str"
+-- type!(0, 'Str)
+
+"=== testing <=>() ==="
+
+==(1.0, 1) && print("==(1.0, 1) is true")
+<=>(1.0, 1) || print("<=>(1.0, 1) is false")
+
+==("1", 1) && print("==(\"1\", 1) is true")
+<=>("1", 1) || print("<=>(\"1\", 1) is false")
+
+"ERR cannot construct Int from Str"
+-- ==(1, "1")
+<=>(1, "1") || print("<=>(1, \"1\") is false")
+
+
+

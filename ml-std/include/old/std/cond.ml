@@ -1,0 +1,115 @@
+var tern (cond, if_true, if_false):{
+    var res _
+    cond && {res := if_true}
+    cond || {res := if_false}
+    res
+}
+
+var !tern (cond, if_false, if_true):{
+    tern(cond, if_true, if_false)
+}
+
+var not (bool):{
+    tern(bool, $false, $true)
+}
+
+```
+    tern should ALWAYS be considered before
+    deciding to use a CaseAnalysis,
+    as tern is easier to read and suits most situtations.
+
+    On the other hand, CaseAnalysis is very powerful but
+    require you to define an additional variable
+    (two of them if you need to store a result)
+```
+var CaseAnalysis ():{
+    var end $false
+    var fn (cond, do):{
+        end == $nil && {
+            die("additional case succeeding a fallthrough case")
+        }
+        end ||= cond && {
+            _ := do
+            $true
+        }
+        "NOTE: don't eval cond if end"
+        end == $false && cond == $nil && {
+            _ := do
+            end := $nil
+        }
+        ;
+    }
+    fn
+}
+
+"package main"
+
+"=== showcasing if..do and unless..do ==="
+{
+    var cond $true
+    -- var cond $false
+
+    cond && {
+        print("we enter this block")
+    }
+
+    cond || {
+        print("we don't enter this block")
+    }
+    ;
+}
+
+"=== showcasing if..else ==="
+{
+    var cond $true
+    -- var cond $false
+
+    tern(cond, print("this is printed"), {
+        print("this is not printed")
+    })
+
+    !tern(cond, print("this is not printed"), {
+        print("this is printed")
+    })
+    ;
+}
+
+"=== showcasing ternary operator ==="
+{
+    var n -33
+    -- var n 10
+    var abs tern(n > 0, n, n + n * -2)
+    print("abs of " + n + " is " + abs)
+    ;
+}
+
+"=== showcasing CaseAnalysis ==="
+{
+    var case CaseAnalysis()
+
+    -- add trace for what gets evaluated
+    var == (a, b):{
+        print("testing " + a + " == " + b)
+        a == b
+    }
+
+    case(1 == 2, {
+        print("A")
+    })
+
+    -- case(2 == 2, {
+        print("B")
+    })
+
+    case(3 == 3, {
+        print("C")
+    })
+
+    case(_, {
+        print("D")
+    })
+
+    -- case(_, {
+        print("can't happen")
+    })
+}
