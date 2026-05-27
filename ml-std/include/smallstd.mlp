@@ -378,7 +378,7 @@ var >> {
     var >> (arg1, arg2, args...):{
         tern(arg1 is 'Lambda, compose(arg1, arg2, args...), {
             "special case, for conveniency"
-            tern(arg1 == $nil && arg is 'Lambda && $#varargs == 0, arg2, {
+            tern(arg1 == $nil && arg2 is 'Lambda && $#varargs == 0, arg2, {
                 rightshift(arg1, arg2, args...)
             })
         })

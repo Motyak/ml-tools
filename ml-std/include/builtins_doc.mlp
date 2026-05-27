@@ -243,7 +243,7 @@
     var / (a, b, varargs...):{
         - performs a Float division
           (even if args are of type Int)
-          -> see //() for int division (remainder)
+          -> see //() for int division
 
         - returns a Float
 
@@ -253,7 +253,7 @@
     }
 
     var // (a, b, varargs...):{
-        - performs an int division (also called "remainder")
+        - performs an int division
           -> see /() for Float division
 
         - returns an Int/Byte depending of first arg type
@@ -299,7 +299,7 @@
 
         - args are evaluated from left to right
 
-        - note: we should confuse this operator with
+        - note: we should not confuse this operator with
           &&(), which can short-circuit its arguments
           as opposed to &() which never does
 
@@ -311,7 +311,7 @@
 
         - args are evaluated from left to right
 
-        - note: we should confuse this operator with
+        - note: we should not confuse this operator with
           ||(), which can short-circuit its arguments
           as opposed to |() which never does
 
