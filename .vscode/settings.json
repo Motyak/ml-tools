@@ -1,0 +1,15 @@
+{
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "explorer.autoReveal": false,
+    "search.quickOpen.includeHistory": false,
+    "search.useIgnoreFiles": true, // exclude files in .gitignore
+    "search.exclude": {
+        "monlang": true,
+        "monlang-parser": true,
+        "monlang-interpreter": true,
+        "monlang-server": true,
+    },
+}
+

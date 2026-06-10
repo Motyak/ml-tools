@@ -15,5 +15,5 @@ git clone https://github.com/Motyak/ml-tools.git ~/.local/share/ml-tools && cd $
 
 ---
 
-# Once installed, no need to re-execute ./install.sh to update,
-# only ./build.sh.
+# Once installed, you can update by running ./update_repo.sh,
+# followed by ./build.sh

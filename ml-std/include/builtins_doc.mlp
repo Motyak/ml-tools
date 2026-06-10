@@ -50,7 +50,7 @@
 
     var slurpfile (file):{
         - reads the entire file as is and return it as a Str
-        - slurpfile("/dev/stdin") to slurp STDIN
+        - slurpfile("/dev/stdin") to slurp STDIN (repeatable)
     }
 
     var die (<optional_msg>):{

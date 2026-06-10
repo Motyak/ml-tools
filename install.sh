@@ -14,8 +14,13 @@ ln -fs "$(realpath monlang-server/open_monlang.sh)" ~/.local/bin/open_monlang
 ln -fs "$(realpath mlp/mlp.sh)" ~/.local/bin/mlp
 set +o verbose
 
+echo -e "\nInstallation is DONE"
 if ! [[ "$PATH" =~ "$HOME/.local/bin:" ]]; then
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-    echo -n "For changes to take effect in current terminal, "
-    echo "should run command \`source ~/.bashrc\`"
+    echo "We have noticed \$HOME/.local/bin is not set in your current \$PATH,"
+    echo -en "would you like us to add it for you ? (Y/n)\n> "
+    read confirm
+    [[ "$confirm" =~ n|N ]] && { echo "aborted"; exit 0; }
+    echo $'\n''export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+    echo "For changes to take effect in current terminal, "
+    echo "please run command \`source ~/.bashrc\`"
 fi

@@ -345,7 +345,7 @@ var all {
         container[#nth]
     }
 
-    "for chained relational operator, e.g.: all(==, [1, 1.0, Byte(1)]) <=> 1 == 1.0 && 1.0 == Byte(1)"
+    "for chained relational operator, e.g.: all(==, [1.0, 1, Byte(1)]) <=> 1.0 == 1 && 1 == Byte(1)"
     var BinPred::all (pred, container):{
         var any_false $false
         var nth 2
