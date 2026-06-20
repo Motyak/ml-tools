@@ -105,18 +105,23 @@ var - {
 }
 
 type Range Lambda
-var .. (from, to):{
-    from is 'Str && {from := Byte(from)}
-    to is 'Str && {to := Byte(to)}
-    var dispatcher (msg):{
-        tern(msg == 'from, from, {
-            tern(msg == 'to, to, {
-                die("unknown range msg: `" + msg + "`")
+{
+    var tag Range
+    Range := (from, to):{
+        from is 'Str && {from := Byte(from)}
+        to is 'Str && {to := Byte(to)}
+        var dispatcher (msg):{
+            tern(msg == 'from, from, {
+                tern(msg == 'to, to, {
+                    die("unknown range msg: `" + msg + "`")
+                })
             })
-        })
+        }
+        tag(dispatcher)
     }
-    Range(dispatcher)
 }
+
+var .. Range
 
 var foreach {
     var List/Str::foreach (OUT container, fn):{
@@ -386,13 +391,14 @@ var >> {
     >>
 }
 
--- include <smallstd/ArgIterator.mlp>
 -- include <smallstd/ascii.mlp> -- "ascii(), lower?(), upper?(), lower(), upper()"
 -- include <smallstd/asList.mlp>
 -- include <smallstd/asMap.mlp>
 -- include <smallstd/ByteStr.mlp>
 -- include <smallstd/delay.mlp>
 -- include <smallstd/io.mlp> -- "getlines(), stdin(), stdout()"
+-- include <smallstd/LazyList.mlp>
 -- include <smallstd/parseInt.mlp>
+-- include <smallstd/RangeEx.mlp>
 -- include <smallstd/sort.mlp>
 -- include <smallstd/types.mlp> -- "<=>()"

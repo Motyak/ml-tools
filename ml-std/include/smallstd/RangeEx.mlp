@@ -1,0 +1,9 @@
+var RangeEx (from, to):{
+    from is 'Str && {from := Byte(from)}
+    to is 'Str && {to := Byte(to)}
+    tern(from == to, Range(1, 0), {
+        tern(from > to, Range(from, to + 1), {
+            Range(from, to - 1)
+        })
+    })
+}

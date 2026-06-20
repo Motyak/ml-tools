@@ -1,0 +1,161 @@
+```
+    ('none?): test whether the Optional is empty
+    ('some): unwrap the Optional (dies if empty)
+```
+type Optional Lambda
+{
+    var tag Optional
+    Optional := (some?, val):{
+        var none? ():{
+            ==($false, some?)
+        }
+
+        var some ():{
+            some? || die("calling some() on empty Optional")
+            val
+        }
+
+        var dispatcher (op):{
+            tern(op == 'none?, none?(), {
+                tern(op == 'some, some(), {
+                    die("unknown Optional operation: `" + op + "`")
+                })
+            })
+        }
+        tag(dispatcher)
+    }
+}
+
+```
+    ('next): consume next element, returns an Optional (empty if EOF)
+    ('peek): peek next element, returns an Optional (empty if EOF)
+```
+type Iterator Lambda
+
+```
+    ('len): returns length
+    ('#, arg): subscript with arg, where arg is either an index or a Range
+                 -> subcripting with an index returns the element at that position
+                    or dies if out of bounds
+                 -> subscripting a Range returns a sub-LazyList (may be empty)
+```
+type LazyList Iterator
+{
+    var tag LazyList
+
+    var Pair (left, right):{
+        var dispatcher (op):{
+            tern(op == 'left, left, {
+                tern(op == 'right, right, {
+                    die(op) -- "unknown operation"
+                })
+            })
+        }
+        dispatcher
+    }
+
+    var END {
+        Optional($false, _)
+    }
+    var Some (x):{
+        Optional($true, x)
+    }
+
+    var Pair?-1+ _
+
+    var Pair? (xs...):{
+        tern($#varargs == 0, END, {
+            Pair?-1+(xs...)
+        })
+    }
+
+    Pair?-1+ := (x, xs...):{
+        Some(Pair(x, Pair?(xs...)))
+    }
+
+    var handle_index (nth, len):{
+        nth == 0 && die("nth cannot be zero")
+        (nth < -(len) || nth > len) && die("LazyList [#" + nth + "] is out of bounds")
+        nth < 0 && {nth := len + nth + 1}
+        nth
+    }
+
+    var subscript-index (pair?, len, nth):{
+        nth := handle_index(nth, len)
+        var i 1
+        until(():{i == nth}, ():{
+            pair?('none?) && die("LazyList [#" + nth + "] doesn't exist")
+            pair? := pair?('some)('right)
+            i += 1
+        })
+        pair?('none?) && die("LazyList [#" + nth + "] doesn't exist")
+        pair?('some)('left)
+    }
+
+    var LazyListCtor _
+
+    var subscript-range (pair?, len, range):{
+        var i 1
+        var from handle_index(range('from), len)
+        var to handle_index(range('to), len)
+        until(():{i == from}, ():{
+            pair?('none?) && die("LazyList [#" + from + "] doesn't exist")
+            pair? := pair?('some)('right)
+            i += 1
+        })
+
+        var new_pair? _
+        new_pair? := (parent_pair):{
+            parent_pair('none?) && die("LazyList [#" + from + "] doesn't exist")
+            tern(i == to, Some(Pair(parent_pair('some)('left), END)), {
+                i += 1
+                Some(Pair(parent_pair('some)('left), new_pair?(parent_pair('some)('right))))
+            })
+        }
+
+        var new_lazylist {
+            var pair? new_pair?(pair?)
+            var len to - from + 1
+            LazyListCtor(pair?, len)
+        }
+        new_lazylist
+    }
+
+    LazyListCtor := (pair?, len):{
+        var subscript (arg):{
+            tern(arg is 'Range, subscript-range(pair?, len, arg), {
+                subscript-index(pair?, len, arg)
+            })
+        }
+
+        var next (peek?):{
+            tern(pair?('none?), END, {
+                var pair pair?('some)
+                var res Some(pair('left))
+                peek? || {
+                    pair? := pair?('some)('right)
+                    len -= 1
+                }
+                res
+            })
+        }
+
+        var dispatch_table [
+            'len => ():{len}
+            '# => subscript
+            'next => ():{next(0)}
+            'peek => ():{next(1)}
+        ]
+        var dispatcher (msg, args...):{
+            dispatch_table[msg]? || die("unknown LazyList op: `" + msg + "`")
+            dispatch_table[msg](args...)
+        }
+        tag(dispatcher)
+    }
+
+    LazyList := (elems...):{
+        var pair? Pair?(elems...)
+        var len $#varargs
+        LazyListCtor(pair?, len)
+    }
+}
