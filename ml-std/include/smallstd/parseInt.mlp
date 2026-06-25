@@ -1,8 +1,27 @@
+
+"assumes there is an Int [0-9]+ in str"
 var parseInt (OUT str):{
     var acc 0
-    until(():{len(str) == 0 || str[#1] !in '0 .. '9}, ():{
+    do_while(():{
         acc := acc * 10 + Int(str[#1] - Byte("0"))
         str := tern(len(str) == 1, "", str[#2..-1])
-    })
+    }, ():{len(str) > 0 && str[#1] in '0 .. '9})
     acc
 }
+
+"this version support negative nb as well"
+```
+    "assumes there is an Int -?[0-9]+ in str"
+    var parseInt (OUT str):{
+        var acc 0
+        var add tern(str[#1] <> "-", +, {
+            str := str[#2..-1]
+            -
+        })
+        do_while(():{
+            acc := add(acc * 10, Int(str[#1] - Byte("0")))
+            str := tern(len(str) == 1, "", str[#2..-1])
+        }, ():{len(str) > 0 && str[#1] in '0 .. '9})
+        acc
+    }
+```
