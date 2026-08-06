@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use open ":encoding(UTF-8)", ":std";
+use re "/a"; # \s only match ascii whitespaces
 use feature "state";
 use constant true => 1;
 use constant false => 0;
