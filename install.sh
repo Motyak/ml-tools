@@ -2,9 +2,9 @@
 # set -o xtrace #debug
 set -o errexit
 
-./build.sh
-
 cd "$(dirname "$0")"
+
+./build.sh
 
 mkdir -p ~/.local/bin
 set -o verbose
